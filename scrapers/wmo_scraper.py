@@ -45,7 +45,7 @@ class WMO_Scraper(scraper.Scraper):
     def resolve_link(self, link):
         url = urlparse.urljoin(self.base_url, link)
         html = self._http_get(url, cache_limit=.5)
-        match = re.search('id="redirectButton[^>]+href=(?:\'|")([^"\']+)', html)
+        match = re.search('href=(?:\'|")([^"\']+)(?:"|\')>Click Here to Play', html)
         if match:
             return match.group(1)
         else:
