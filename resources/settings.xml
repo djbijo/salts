@@ -355,7 +355,7 @@
          <setting id="moviestorm.eu_fail" type="number" default="0" visible="false"/>
          <setting id="moviestorm.eu_check" type="number" default="0" visible="false"/>
          <setting id="wmo.ch-enable" type="bool" label="wmo.ch Enabled" default="true" visible="true"/>
-         <setting id="wmo.ch-base_url" type="text" label="     Base Url" default="http://free-movies.li" visible="eq(-1,true)"/>
+         <setting id="wmo.ch-base_url" type="text" label="     Base Url" default="http://watchmovies-online.ch" visible="eq(-1,true)"/>
          <setting id="wmo.ch-sub_check" type="bool" label="     Include in Page Existence checks?" default="true" visible="eq(-2,true)"/>
          <setting id="wmo.ch_try" type="number" default="0" visible="false"/>
          <setting id="wmo.ch_fail" type="number" default="0" visible="false"/>
