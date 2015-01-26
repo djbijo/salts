@@ -1335,7 +1335,7 @@ def clean_subs():
     for item in items:
         show_slug=item['ids']['slug']
         show=trakt_api.get_show_details(show_slug)
-        if show['status'].upper()=='ENDED':
+        if show['status'].upper() in ['ENDED', 'CANCELED', 'CANCELLED']:
             show_id = utils.show_id(item)
             del_items.append({show_id['id_type']:show_id['show_id']})
             
