@@ -71,7 +71,7 @@ BLOG_Q_MAP[QUALITIES.HD]=['720', '1080']
 HOST_Q={}
 HOST_Q[QUALITIES.LOW]=['youwatch.org', 'allmyvideos.net', 'played.to', 'gorillavid.in']
 HOST_Q[QUALITIES.MEDIUM]=['primeshare.tv', 'www.exashare.com', 'bestreams.net', 'www.flashx.tv', 'vidto.me', 
-                          'vodlocker.com', 'www.thevideo.me', 'vidzi.tv', 'vidbull.com', 'realvid.net', 'www.nosvideo.com']
+                          'vodlocker.com', 'www.thevideo.me', 'vidzi.tv', 'vidbull.com', 'realvid.net', 'www.nosvideo.com', 'daclips.in']
 HOST_Q[QUALITIES.HIGH]=['vidspot.net', 'mrfile.me', 'www.divxstage.eu', 'www.divxstage.to']
 HOST_Q[QUALITIES.HD]=['thefile.me', 'sharesix.com', 'mightyupload.com', 'filenuke.com', 'hugefiles.net', '180upload.com', 
                       'vidxden', 'billionuploads.com', 'www.movshare.net', 'www.nowvideo.sx']

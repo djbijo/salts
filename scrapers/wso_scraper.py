@@ -44,17 +44,16 @@ class WSO_Scraper(scraper.Scraper):
         return 'wso.ch'
     
     def resolve_link(self, link):
-        if self.base_url in link:
-            url = urlparse.urljoin(self.base_url, link)
-            html = self._http_get(url, cache_limit=.5)
-            match = re.search('id="redirectButton[^>]+href=(?:\'|")([^"\']+)', html)
-            if match:
-                return match.group(1)
+        url = urlparse.urljoin(self.base_url, link)
+        html = self._http_get(url, cache_limit=.5)
+        match = re.search('href=(?:\'|")([^"\']+)(?:"|\')>Click Here to Play', html)
+        if match:
+            return match.group(1)
         else:
             return link
     
     def format_source_label(self, item):
-        label='[%s] %s' % (item['quality'], item['host'])
+        label='[%s] %s (%s views)' % (item['quality'], item['host'], item['views'])
         return label
     
     def get_sources(self, video):
@@ -64,10 +63,10 @@ class WSO_Scraper(scraper.Scraper):
             url = urlparse.urljoin(self.base_url, source_url)
             html = self._http_get(url, cache_limit=.5)
             
-            pattern = 'class="[^"]+tdhost".*?href="([^"]+)">([^<]+)'
+            pattern = 'class="[^"]+tdhost".*?href="([^"]+)">([^<]+).*?class="[^"]*link_views"\s+id="(\d+)'
             for match in re.finditer(pattern, html, re.DOTALL):
-                stream_url, host = match.groups()
-                hoster = {'multi-part': False, 'host': host.lower(), 'class': self, 'url': stream_url, 'quality': self._get_quality(video, host, QUALITIES.HIGH), 'views': None, 'rating': None, 'direct': False}
+                stream_url, host, views = match.groups()
+                hoster = {'multi-part': False, 'host': host.lower(), 'class': self, 'url': stream_url, 'quality': self._get_quality(video, host, QUALITIES.HIGH), 'views': views, 'rating': None, 'direct': False}
                 hosters.append(hoster)
         return hosters
 
