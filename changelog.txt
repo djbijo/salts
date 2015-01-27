@@ -1,3 +1,15 @@
+[B]Version 0.0.57[/B]
+- Fix movietv.to scraper
+- Fix myvideolinks.eu scraper
+- Fix uflix.org scraper
+- Fix wmo.ch scraper
+- Fix iwatch scraper
+- Improve clickplay.to scraper
+- Improve yify.tv scraper
+- Use quality derivation algorithm for all scrapers where quality is undefined
+- Fix movieshd.co scraper
+- Stop printing labels that aren't filled in
+
 [B]Version 0.0.56[/B]
 - Fix for when no account is configured
 - Add some theme icons
