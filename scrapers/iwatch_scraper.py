@@ -66,17 +66,18 @@ class IWatchOnline_Scraper(scraper.Scraper):
             match = re.search('<table[^>]+id="streamlinks">(.*?)</table>', html, re.DOTALL)
             if match:
                 fragment = match.group(1)
-                pattern = 'href="([^"]+/play/[^"]+).*?/>\s+\.?([^\s]+)\s+.*?<td>.*?</td>\s*<td>(.*?)</td>\s*<td>(.*?)</td>'
+                pattern = 'href="([^"]+/play/[^"]+).*?/>\s+\.?([^\s]+)\s+.*?(<span class="linkdate">.*?)</td>\s*<td>(.*?)</td>'
                 max_age = 0
                 now = min_age = int(time.time())
                 for match in re.finditer(pattern, fragment, re.DOTALL):
                     url, host, age, quality = match.groups()
+                    print url, host, age, quality
                     age = self.__get_age(now, age)
                     quality=quality.upper()
                     if age>max_age: max_age=age
                     if age<min_age: min_age=age
                     hoster = {'multi-part': False, 'class': self, 'url': url.replace(self.base_url,''), 'host': host.lower(), 'age': age, 'views': None, 'rating': None, 'direct': False}
-                    hoster['quality']=QUALITY_MAP[quality] if quality in QUALITY_MAP else None
+                    hoster['quality']=self._get_quality(video, host.lower(), QUALITY_MAP[quality])
                     hosters.append(hoster)
                 
                 unit=(max_age - min_age)/100
@@ -109,7 +110,10 @@ class IWatchOnline_Scraper(scraper.Scraper):
                     mult = (60*60*24*365)
                 else:
                     mult = 0
-                age = now - (num * mult)
+            else:
+                num =0
+                mult = 0
+            age = now - (num * mult)
                 #print '%s, %s, %s, %s' % (num, unit, mult, age)
         return age
         
