@@ -66,7 +66,10 @@ class IWatchOnline_Scraper(scraper.Scraper):
             match = re.search('<table[^>]+id="streamlinks">(.*?)</table>', html, re.DOTALL)
             if match:
                 fragment = match.group(1)
-                pattern = 'href="([^"]+/play/[^"]+).*?/>\s+\.?([^\s]+)\s+.*?(<span class="linkdate">.*?)</td>\s*<td>(.*?)</td>'
+                if video.video_type == VIDEO_TYPES.MOVIE:
+                    pattern = 'href="([^"]+/play/[^"]+).*?/>\s+\.?([^\s]+)\s+.*?<td>.*?</td>\s*<td>(.*?)</td>\s*<td>(.*?)</td>'
+                else:
+                    pattern = 'href="([^"]+/play/[^"]+).*?/>\s+\.?([^\s]+)\s+.*?(<span class="linkdate">.*?)</td>\s*<td>(.*?)</td>'
                 max_age = 0
                 now = min_age = int(time.time())
                 for match in re.finditer(pattern, fragment, re.DOTALL):
