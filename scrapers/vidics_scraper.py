@@ -55,7 +55,7 @@ class Vidics_Scraper(scraper.Scraper):
         return response.geturl()
     
     def format_source_label(self, item):
-        label='[%s] %s (%s/100)' % (item['quality'], item['host'], item['rating'])
+        label='[%s] %s' % (item['quality'], item['host'])
         return label
     
     def get_sources(self, video):
@@ -71,7 +71,7 @@ class Vidics_Scraper(scraper.Scraper):
                 
                 for match in re.finditer('class="movie_link.*?href="([^"]+)[^>]+>([^<]+)', fragment, re.DOTALL):
                     media_url, host = match.groups()
-                    hosters.append({'multi-part': False, 'url': media_url, 'class': self, 'quality': None, 'host': host.lower(), 'rating': None, 'views': None, 'direct': False})
+                    hosters.append({'multi-part': False, 'url': media_url, 'class': self, 'quality': self._get_quality(video, host.lower(), QUALITIES.HIGH), 'host': host.lower(), 'rating': None, 'views': None, 'direct': False})
                     
         return hosters
 
