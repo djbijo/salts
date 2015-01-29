@@ -15,25 +15,25 @@ import urlparse
 import shutil
 import urllib
 from constants import *
-from scrapers import * # import all scrapers into this namespace
+from scrapers import *  # import all scrapers into this namespace
 from addon.common.addon import Addon
 from trakt_api import Trakt_API
 from db_utils import DB_Connection
 
 ADDON = Addon('plugin.video.salts')
 ICON_PATH = os.path.join(ADDON.get_path(), 'icon.png')
-SORT_FIELDS =  [(SORT_LIST[int(ADDON.get_setting('sort1_field'))], SORT_SIGNS[ADDON.get_setting('sort1_order')]),
+SORT_FIELDS = [(SORT_LIST[int(ADDON.get_setting('sort1_field'))], SORT_SIGNS[ADDON.get_setting('sort1_order')]),
                 (SORT_LIST[int(ADDON.get_setting('sort2_field'))], SORT_SIGNS[ADDON.get_setting('sort2_order')]),
                 (SORT_LIST[int(ADDON.get_setting('sort3_field'))], SORT_SIGNS[ADDON.get_setting('sort3_order')]),
                 (SORT_LIST[int(ADDON.get_setting('sort4_field'))], SORT_SIGNS[ADDON.get_setting('sort4_order')]),
                 (SORT_LIST[int(ADDON.get_setting('sort5_field'))], SORT_SIGNS[ADDON.get_setting('sort5_order')])]
 
-username=ADDON.get_setting('username')
-password=ADDON.get_setting('password')
+username = ADDON.get_setting('username')
+password = ADDON.get_setting('password')
 token = ADDON.get_setting('trakt_token')
-use_https=ADDON.get_setting('use_https')=='true'
-trakt_timeout=int(ADDON.get_setting('trakt_timeout'))
-list_size=int(ADDON.get_setting('list_size'))
+use_https = ADDON.get_setting('use_https') == 'true'
+trakt_timeout = int(ADDON.get_setting('trakt_timeout'))
+list_size = int(ADDON.get_setting('list_size'))
 
 P_MODE = int(ADDON.get_setting('parallel_mode'))
 if P_MODE == P_MODES.THREADS:
@@ -51,55 +51,55 @@ elif P_MODE == P_MODES.PROCESSES:
         builtin = 'XBMC.Notification(%s,Process Mode not supported on this platform falling back to Thread Mode, 7500, %s)'
         xbmc.executebuiltin(builtin % (ADDON.get_name(), ICON_PATH))
 
-trakt_api=Trakt_API(username,password, token, use_https, list_size, trakt_timeout)
-db_connection=DB_Connection()
+trakt_api = Trakt_API(username, password, token, use_https, list_size, trakt_timeout)
+db_connection = DB_Connection()
 
 THEME_LIST = ['Shine', 'Luna_Blue', 'Iconic']
 THEME = THEME_LIST[int(ADDON.get_setting('theme'))]
 if xbmc.getCondVisibility('System.HasAddon(script.salts.themepak)'):
     themepak_path = xbmcaddon.Addon('script.salts.themepak').getAddonInfo('path')
 else:
-    themepak_path=ADDON.get_path()
+    themepak_path = ADDON.get_path()
 THEME_PATH = os.path.join(themepak_path, 'art', 'themes', THEME)
 
-def art(name): 
+def art(name):
     return os.path.join(THEME_PATH, name)
 
 def choose_list(username=None):
     lists = trakt_api.get_lists(username)
     if username is None: lists.insert(0, {'name': 'watchlist', 'ids': {'slug': WATCHLIST_SLUG}})
     if lists:
-        dialog=xbmcgui.Dialog()
+        dialog = xbmcgui.Dialog()
         index = dialog.select('Pick a list', [list_data['name'] for list_data in lists])
-        if index>-1:
+        if index > -1:
             return lists[index]['ids']['slug']
     else:
         builtin = 'XBMC.Notification(%s,No Lists exist for user: %s, 5000, %s)'
         xbmc.executebuiltin(builtin % (ADDON.get_name(), username, ICON_PATH))
 
 def show_id(show):
-    queries={}
+    queries = {}
     ids = show['ids']
     if 'slug' in ids and ids['slug']:
-        queries['id_type']='slug'
-        queries['show_id']=ids['slug']
+        queries['id_type'] = 'slug'
+        queries['show_id'] = ids['slug']
     elif 'trakt' in ids and ids['trakt']:
-        queries['id_type']='trakt'
-        queries['show_id']=ids['trakt']
+        queries['id_type'] = 'trakt'
+        queries['show_id'] = ids['trakt']
     elif 'imdb' in ids and ids['imdb']:
-        queries['id_type']='imdb'
-        queries['show_id']=ids['imdb']
+        queries['id_type'] = 'imdb'
+        queries['show_id'] = ids['imdb']
     elif 'tvdb' in ids and ids['tvdb']:
-        queries['id_type']='tvdb'
-        queries['show_id']=ids['tvdb']
+        queries['id_type'] = 'tvdb'
+        queries['show_id'] = ids['tvdb']
     elif 'tmdb' in ids and ids['tmdb']:
-        queries['id_type']='tmdb'
-        queries['show_id']=ids['tmdb']
+        queries['id_type'] = 'tmdb'
+        queries['show_id'] = ids['tmdb']
     elif 'tvrage' in ids and ids['tvrage']:
-        queries['id_type']='tvrage'
-        queries['show_id']=ids['tvrage']
+        queries['id_type'] = 'tvrage'
+        queries['show_id'] = ids['tvrage']
     return queries
-    
+
 def update_url(video_type, title, year, source, old_url, new_url, season, episode):
     log_utils.log('Setting Url: |%s|%s|%s|%s|%s|%s|%s|%s|' % (video_type, title, year, source, old_url, new_url, season, episode), xbmc.LOGDEBUG)
     if new_url:
@@ -112,39 +112,39 @@ def update_url(video_type, title, year, source, old_url, new_url, season, episod
         db_connection.clear_related_url(VIDEO_TYPES.EPISODE, title, year, source)
 
 def make_seasons_info(progress):
-    season_info={}
+    season_info = {}
     if progress:
         for season in progress['seasons']:
-            info={}
-            if 'aired' in season: info['episode']=info['TotalEpisodes']=season['aired']
-            if 'completed' in season: info['WatchedEpisodes']=season['completed']
+            info = {}
+            if 'aired' in season: info['episode'] = info['TotalEpisodes'] = season['aired']
+            if 'completed' in season: info['WatchedEpisodes'] = season['completed']
             if 'aired' in season and 'completed' in season:
-                info['UnWatchedEpisodes']=season['aired'] - season['completed']
-                info['playcount']=season['aired'] if season['completed']==season['aired'] else 0
-                
-            if 'number' in season: info['season']=season['number']
-            season_info[str(season['number'])]=info
+                info['UnWatchedEpisodes'] = season['aired'] - season['completed']
+                info['playcount'] = season['aired'] if season['completed'] == season['aired'] else 0
+
+            if 'number' in season: info['season'] = season['number']
+            season_info[str(season['number'])] = info
     return season_info
 
 def make_episodes_watched(episodes, progress):
-    watched={}
+    watched = {}
     for season in progress['seasons']:
-        watched[str(season['number'])]={}
+        watched[str(season['number'])] = {}
         for ep_status in season['episodes']:
-            watched[str(season['number'])][str(ep_status['number'])]=ep_status['completed']
-    
+            watched[str(season['number'])][str(ep_status['number'])] = ep_status['completed']
+
     for episode in episodes:
         season_str = str(episode['season'])
         episode_str = str(episode['number'])
         if season_str in watched and episode_str in watched[season_str]:
-            episode['watched']=watched[season_str][episode_str]
+            episode['watched'] = watched[season_str][episode_str]
         else:
-            episode['watched']=False
+            episode['watched'] = False
 
     return episodes
 
 def make_list_item(label, meta):
-    art=make_art(meta)
+    art = make_art(meta)
     listitem = xbmcgui.ListItem(label, iconImage=art['thumb'], thumbnailImage=art['thumb'])
     listitem.setProperty('fanart_image', art['fanart'])
     try: listitem.setArt(art)
@@ -155,116 +155,116 @@ def make_list_item(label, meta):
 
 def make_art(show):
     min_size = int(ADDON.get_setting('image_size'))
-    art_dict={'banner': '', 'fanart': art('fanart.jpg'), 'thumb': '', 'poster': PLACE_POSTER}
+    art_dict = {'banner': '', 'fanart': art('fanart.jpg'), 'thumb': '', 'poster': PLACE_POSTER}
     if 'images' in show:
         images = show['images']
-        for i in range(0,min_size+1):
-            if 'banner' in images and IMG_SIZES[i] in images['banner'] and images['banner'][IMG_SIZES[i]]: art_dict['banner']=images['banner'][IMG_SIZES[i]]
-            if 'fanart' in images and IMG_SIZES[i] in images['fanart'] and images['fanart'][IMG_SIZES[i]]: art_dict['fanart']=images['fanart'][IMG_SIZES[i]]
-            if 'poster' in images and IMG_SIZES[i] in images['poster'] and images['poster'][IMG_SIZES[i]]: art_dict['thumb']=art_dict['poster']=images['poster'][IMG_SIZES[i]]
-            if 'thumb' in images and IMG_SIZES[i] in images['thumb'] and images['thumb'][IMG_SIZES[i]]: art_dict['thumb']=images['thumb'][IMG_SIZES[i]]
-            if 'screen' in images and IMG_SIZES[i] in images['screen'] and images['screen'][IMG_SIZES[i]]: art_dict['thumb']=images['screen'][IMG_SIZES[i]]
-            if 'screenshot' in images and IMG_SIZES[i] in images['screenshot'] and images['screenshot'][IMG_SIZES[i]]: art_dict['thumb']=images['screenshot'][IMG_SIZES[i]]
-            if 'logo' in images and IMG_SIZES[i] in images['logo'] and images['logo'][IMG_SIZES[i]]: art_dict['clearlogo']=images['logo'][IMG_SIZES[i]]
-            if 'clearart' in images and IMG_SIZES[i] in images['clearart'] and images['clearart'][IMG_SIZES[i]]: art_dict['clearart']=images['clearart'][IMG_SIZES[i]]
+        for i in range(0, min_size + 1):
+            if 'banner' in images and IMG_SIZES[i] in images['banner'] and images['banner'][IMG_SIZES[i]]: art_dict['banner'] = images['banner'][IMG_SIZES[i]]
+            if 'fanart' in images and IMG_SIZES[i] in images['fanart'] and images['fanart'][IMG_SIZES[i]]: art_dict['fanart'] = images['fanart'][IMG_SIZES[i]]
+            if 'poster' in images and IMG_SIZES[i] in images['poster'] and images['poster'][IMG_SIZES[i]]: art_dict['thumb'] = art_dict['poster'] = images['poster'][IMG_SIZES[i]]
+            if 'thumb' in images and IMG_SIZES[i] in images['thumb'] and images['thumb'][IMG_SIZES[i]]: art_dict['thumb'] = images['thumb'][IMG_SIZES[i]]
+            if 'screen' in images and IMG_SIZES[i] in images['screen'] and images['screen'][IMG_SIZES[i]]: art_dict['thumb'] = images['screen'][IMG_SIZES[i]]
+            if 'screenshot' in images and IMG_SIZES[i] in images['screenshot'] and images['screenshot'][IMG_SIZES[i]]: art_dict['thumb'] = images['screenshot'][IMG_SIZES[i]]
+            if 'logo' in images and IMG_SIZES[i] in images['logo'] and images['logo'][IMG_SIZES[i]]: art_dict['clearlogo'] = images['logo'][IMG_SIZES[i]]
+            if 'clearart' in images and IMG_SIZES[i] in images['clearart'] and images['clearart'][IMG_SIZES[i]]: art_dict['clearart'] = images['clearart'][IMG_SIZES[i]]
     return art_dict
 
 def make_info(item, show=None, people=None):
     if people is None: people = {}
-    if show is None: show={}
-    #log_utils.log('Making Info: Show: %s' % (show), xbmc.LOGDEBUG)
-    #log_utils.log('Making Info: Item: %s' % (item), xbmc.LOGDEBUG)
-    info={}
-    info['title']=item['title']
-    if 'overview' in item: info['plot']=info['plotoutline']=item['overview']
-    if 'runtime' in item: info['duration']=item['runtime']
-    if 'certification' in item: info['mpaa']=item['certification']
-    if 'year' in item: info['year']=item['year']
-    if 'season' in item: info['season']=item['season'] # needs check
-    if 'episode' in item: info['episode']=item['episode'] # needs check
-    if 'number' in item: info['episode']=item['number'] # needs check
+    if show is None: show = {}
+    # log_utils.log('Making Info: Show: %s' % (show), xbmc.LOGDEBUG)
+    # log_utils.log('Making Info: Item: %s' % (item), xbmc.LOGDEBUG)
+    info = {}
+    info['title'] = item['title']
+    if 'overview' in item: info['plot'] = info['plotoutline'] = item['overview']
+    if 'runtime' in item: info['duration'] = item['runtime']
+    if 'certification' in item: info['mpaa'] = item['certification']
+    if 'year' in item: info['year'] = item['year']
+    if 'season' in item: info['season'] = item['season']  # needs check
+    if 'episode' in item: info['episode'] = item['episode']  # needs check
+    if 'number' in item: info['episode'] = item['number']  # needs check
     if 'genres' in item:
-        genres = dict((genre['slug'],genre['name']) for genre in trakt_api.get_genres(SECTIONS.TV))
-        genres.update(dict((genre['slug'],genre['name']) for genre in trakt_api.get_genres(SECTIONS.MOVIES)))
+        genres = dict((genre['slug'], genre['name']) for genre in trakt_api.get_genres(SECTIONS.TV))
+        genres.update(dict((genre['slug'], genre['name']) for genre in trakt_api.get_genres(SECTIONS.MOVIES)))
         item_genres = [genres[genre] for genre in item['genres'] if genre in genres]
-        info['genre']=', '.join(item_genres)
-    if 'network' in item: info['studio']=item['network']
-    if 'status' in item: info['status']=item['status']
-    if 'tagline' in item: info['tagline']=item['tagline']
-    if 'watched' in item and item['watched']: info['playcount']=1
-    if 'plays' in item and item['plays']: info['playcount']=item['plays']
-    if 'rating' in item: info['rating']=item['rating']
-    if 'votes' in item: info['votes']=item['votes']
-    if 'released' in item: info['premiered']=item['released']
-    if 'trailer' in item and item['trailer']: info['trailer']=make_trailer(item['trailer'])
+        info['genre'] = ', '.join(item_genres)
+    if 'network' in item: info['studio'] = item['network']
+    if 'status' in item: info['status'] = item['status']
+    if 'tagline' in item: info['tagline'] = item['tagline']
+    if 'watched' in item and item['watched']: info['playcount'] = 1
+    if 'plays' in item and item['plays']: info['playcount'] = item['plays']
+    if 'rating' in item: info['rating'] = item['rating']
+    if 'votes' in item: info['votes'] = item['votes']
+    if 'released' in item: info['premiered'] = item['released']
+    if 'trailer' in item and item['trailer']: info['trailer'] = make_trailer(item['trailer'])
     info.update(make_ids(item))
-    
+
     if 'first_aired' in item:
         utc_air_time = iso_2_utc(item['first_aired'])
-        try: info['aired']=info['premiered']=time.strftime('%Y-%m-%d', time.localtime(utc_air_time))
-        except ValueError: # windows throws a ValueError on negative values to localtime  
-            d=datetime.datetime.fromtimestamp(0) + datetime.timedelta(seconds=utc_air_time)
-            info['aired']=info['premiered']=d.strftime('%Y-%m-%d')
-     
+        try: info['aired'] = info['premiered'] = time.strftime('%Y-%m-%d', time.localtime(utc_air_time))
+        except ValueError:  # windows throws a ValueError on negative values to localtime
+            d = datetime.datetime.fromtimestamp(0) + datetime.timedelta(seconds=utc_air_time)
+            info['aired'] = info['premiered'] = d.strftime('%Y-%m-%d')
+
     if 'aired_episodes' in item:
-        info['episode']=info['TotalEpisodes']=item['aired_episodes']
-        info['WatchedEpisodes']=item['watched_count'] if 'watched_count' in item else 0
-        info['UnWatchedEpisodes']=info['TotalEpisodes'] - info['WatchedEpisodes']
-        
+        info['episode'] = info['TotalEpisodes'] = item['aired_episodes']
+        info['WatchedEpisodes'] = item['watched_count'] if 'watched_count' in item else 0
+        info['UnWatchedEpisodes'] = info['TotalEpisodes'] - info['WatchedEpisodes']
+
     # override item params with show info if it exists
-    if 'certification' in show: info['mpaa']=show['certification']
-    if 'year' in show: info['year']=show['year']
-    if 'runtime' in show: info['duration']=show['runtime']
-    if 'title' in show: info['tvshowtitle']=show['title']
-    if 'network' in show: info['studio']=show['network']
-    if 'status' in show: info['status']=show['status']
-    if 'trailer' in show and show['trailer']: info['trailer']=make_trailer(show['trailer'])
+    if 'certification' in show: info['mpaa'] = show['certification']
+    if 'year' in show: info['year'] = show['year']
+    if 'runtime' in show: info['duration'] = show['runtime']
+    if 'title' in show: info['tvshowtitle'] = show['title']
+    if 'network' in show: info['studio'] = show['network']
+    if 'status' in show: info['status'] = show['status']
+    if 'trailer' in show and show['trailer']: info['trailer'] = make_trailer(show['trailer'])
     info.update(make_ids(show))
     info.update(make_people(people))
     return info
-    
+
 def make_trailer(trailer_url):
-    match=re.search('\?v=(.*)', trailer_url)
+    match = re.search('\?v=(.*)', trailer_url)
     if match:
-        return 'plugin://plugin.video.youtube/?action=play_video&videoid=%s' % (match.group(1)) 
-    
+        return 'plugin://plugin.video.youtube/?action=play_video&videoid=%s' % (match.group(1))
+
 def make_ids(item):
-    info={}
+    info = {}
     if 'ids' in item:
-        ids=item['ids']
-        if 'imdb' in ids: info['code']=info['imdbnumber']=info['imdb_id']=ids['imdb']
-        if 'tmdb' in ids: info['tmdb_id']=ids['tmdb']
-        if 'tvdb' in ids: info['tvdb_id']=ids['tvdb']
-        if 'trakt' in ids: info['trakt_id']=ids['trakt']
-        if 'slug' in ids: info['slug']=ids['slug']
+        ids = item['ids']
+        if 'imdb' in ids: info['code'] = info['imdbnumber'] = info['imdb_id'] = ids['imdb']
+        if 'tmdb' in ids: info['tmdb_id'] = ids['tmdb']
+        if 'tvdb' in ids: info['tvdb_id'] = ids['tvdb']
+        if 'trakt' in ids: info['trakt_id'] = ids['trakt']
+        if 'slug' in ids: info['slug'] = ids['slug']
     return info
-    
+
 def make_people(item):
-    people={}
-    if 'cast' in item: people['cast']=[person['person']['name'] for person in item['cast']]
-    if 'cast' in item: people['castandrole']=['%s as %s' % (person['person']['name'], person['character']) for person in item['cast']]
+    people = {}
+    if 'cast' in item: people['cast'] = [person['person']['name'] for person in item['cast']]
+    if 'cast' in item: people['castandrole'] = ['%s as %s' % (person['person']['name'], person['character']) for person in item['cast']]
     if 'crew' in item and 'directing' in item['crew']:
         directors = [director['person']['name'] for director in item['crew']['directing'] if director['job'].lower() == 'director']
-        people['director']=', '.join(directors)
+        people['director'] = ', '.join(directors)
     if 'crew' in item and 'writing' in item['crew']:
         writers = [writer['person']['name'] for writer in item['crew']['writing'] if writer['job'].lower() in ['writer', 'screenplay', 'author']]
-        people['writer']=', '.join(writers)
-    
+        people['writer'] = ', '.join(writers)
+
     return people
-    
+
 def get_section_params(section):
-    section_params={}
-    section_params['section']=section
-    if section==SECTIONS.TV:
-        section_params['next_mode']=MODES.SEASONS
-        section_params['folder']=True
-        section_params['video_type']=VIDEO_TYPES.TVSHOW
-        section_params['content_type']=CONTENT_TYPES.TVSHOWS
+    section_params = {}
+    section_params['section'] = section
+    if section == SECTIONS.TV:
+        section_params['next_mode'] = MODES.SEASONS
+        section_params['folder'] = True
+        section_params['video_type'] = VIDEO_TYPES.TVSHOW
+        section_params['content_type'] = CONTENT_TYPES.TVSHOWS
     else:
-        section_params['next_mode']=MODES.GET_SOURCES
-        section_params['folder']=ADDON.get_setting('source-win')=='Directory' and ADDON.get_setting('auto-play')=='false'
-        section_params['video_type']=VIDEO_TYPES.MOVIE
-        section_params['content_type']=CONTENT_TYPES.MOVIES
+        section_params['next_mode'] = MODES.GET_SOURCES
+        section_params['folder'] = ADDON.get_setting('source-win') == 'Directory' and ADDON.get_setting('auto-play') == 'false'
+        section_params['video_type'] = VIDEO_TYPES.MOVIE
+        section_params['content_type'] = CONTENT_TYPES.MOVIES
     return section_params
 
 def filename_from_title(title, video_type, year=None):
@@ -281,7 +281,7 @@ def filename_from_title(title, video_type, year=None):
     return filename
 
 def filter_unknown_hosters(hosters):
-    filtered_hosters=[]
+    filtered_hosters = []
     for host in hosters:
         for key, _ in SORT_FIELDS:
             if key in host and host[key] is None:
@@ -295,7 +295,7 @@ def filter_exclusions(hosters):
     exclusions = exclusions.replace(' ', '')
     exclusions = exclusions.lower()
     if not exclusions: return hosters
-    filtered_hosters=[]
+    filtered_hosters = []
     for hoster in hosters:
         if hoster['host'].lower() in exclusions:
             log_utils.log('Excluding %s (%s) from %s' % (hoster['url'], hoster['host'], hoster['class'].get_name()), xbmc.LOGDEBUG)
@@ -305,13 +305,13 @@ def filter_exclusions(hosters):
 
 def filter_quality(video_type, hosters):
     qual_filter = int(ADDON.get_setting('%s_quality' % video_type))
-    if qual_filter==0:
+    if qual_filter == 0:
         return hosters
-    elif qual_filter==1:
-        keep_qual=[QUALITIES.HD]
+    elif qual_filter == 1:
+        keep_qual = [QUALITIES.HD]
     else:
-        keep_qual=[QUALITIES.LOW, QUALITIES.MEDIUM, QUALITIES.HIGH]
-    
+        keep_qual = [QUALITIES.LOW, QUALITIES.MEDIUM, QUALITIES.HIGH]
+
     filtered_hosters = []
     for hoster in hosters:
         if hoster['quality'] in keep_qual:
@@ -321,49 +321,49 @@ def filter_quality(video_type, hosters):
 def get_sort_key(item):
     item_sort_key = []
     for field, sign in SORT_FIELDS:
-        if field=='none':
+        if field == 'none':
             break
         elif field in SORT_KEYS:
             if field == 'source':
-                value=item['class'].get_name()
+                value = item['class'].get_name()
             else:
-                value=item[field]
-            
+                value = item[field]
+
             if value in SORT_KEYS[field]:
-                item_sort_key.append(sign*int(SORT_KEYS[field][value]))
-            else: # assume all unlisted values sort as worst
-                item_sort_key.append(sign*-1)
+                item_sort_key.append(sign * int(SORT_KEYS[field][value]))
+            else:  # assume all unlisted values sort as worst
+                item_sort_key.append(sign * -1)
         else:
             if item[field] is None:
-                item_sort_key.append(sign*-1)
+                item_sort_key.append(sign * -1)
             else:
-                item_sort_key.append(sign*int(item[field]))
-    #print 'item: %s sort_key: %s' % (item, item_sort_key)
+                item_sort_key.append(sign * int(item[field]))
+    # print 'item: %s sort_key: %s' % (item, item_sort_key)
     return tuple(item_sort_key)
 
 def make_source_sort_key():
-    sso=ADDON.get_setting('source_sort_order')
-    sort_key={}
-    i=0
+    sso = ADDON.get_setting('source_sort_order')
+    sort_key = {}
+    i = 0
     scrapers = relevant_scrapers(include_disabled=True)
     scraper_names = [scraper.get_name() for scraper in scrapers]
     if sso:
         sources = sso.split('|')
-        sort_key={}
-        for i,source in enumerate(sources):
+        sort_key = {}
+        for i, source in enumerate(sources):
             if source in scraper_names:
-                sort_key[source]=-i
-        
+                sort_key[source] = -i
+
     for j, scraper in enumerate(scrapers):
         if scraper.get_name() not in sort_key:
-            sort_key[scraper.get_name()]=-(i+j)
-    
+            sort_key[scraper.get_name()] = -(i + j)
+
     return sort_key
 
 def get_source_sort_key(item):
-    sort_key=make_source_sort_key()
+    sort_key = make_source_sort_key()
     return -sort_key[item.get_name()]
-        
+
 def make_source_sort_string(sort_key):
     sorted_key = sorted(sort_key.items(), key=lambda x: -x[1])
     sort_string = '|'.join([element[0] for element in sorted_key])
@@ -371,10 +371,10 @@ def make_source_sort_string(sort_key):
 
 def start_worker(q, func, args):
     if P_MODE == P_MODES.THREADS:
-        worker=threading.Thread(target=func, args=([q] + args))
+        worker = threading.Thread(target=func, args=([q] + args))
     elif P_MODE == P_MODES.PROCESSES:
-        worker=multiprocessing.Process(target=func, args=([q] + args))
-    worker.daemon=True
+        worker = multiprocessing.Process(target=func, args=([q] + args))
+    worker.daemon = True
     worker.start()
     return worker
 
@@ -383,7 +383,7 @@ def reap_workers(workers, timeout=0):
     Reap thread/process workers; don't block by default; return un-reaped workers
     """
     log_utils.log('In Reap: %s' % (workers), xbmc.LOGDEBUG)
-    living_workers=[]
+    living_workers = []
     for worker in workers:
         log_utils.log('Reaping: %s' % (worker.name), xbmc.LOGDEBUG)
         worker.join(timeout)
@@ -393,55 +393,55 @@ def reap_workers(workers, timeout=0):
     return living_workers
 
 def parallel_get_sources(q, cls, video):
-    scraper_instance=cls(int(ADDON.get_setting('source_timeout')))
+    scraper_instance = cls(int(ADDON.get_setting('source_timeout')))
     if P_MODE == P_MODES.THREADS:
-        worker=threading.current_thread()
+        worker = threading.current_thread()
     elif P_MODE == P_MODES.PROCESSES:
-        worker=multiprocessing.current_process()
-        
+        worker = multiprocessing.current_process()
+
     log_utils.log('Starting %s (%s) for %s sources' % (worker.name, worker, cls.get_name()), xbmc.LOGDEBUG)
-    hosters=scraper_instance.get_sources(video)
+    hosters = scraper_instance.get_sources(video)
     log_utils.log('%s returned %s sources from %s' % (cls.get_name(), len(hosters), worker), xbmc.LOGDEBUG)
     result = {'name': cls.get_name(), 'hosters': hosters}
     q.put(result)
 
 def parallel_get_url(q, cls, video):
-    scraper_instance=cls(int(ADDON.get_setting('source_timeout')))
+    scraper_instance = cls(int(ADDON.get_setting('source_timeout')))
     if P_MODE == P_MODES.THREADS:
-        worker=threading.current_thread()
+        worker = threading.current_thread()
     elif P_MODE == P_MODES.PROCESSES:
-        worker=multiprocessing.current_process()
-        
+        worker = multiprocessing.current_process()
+
     log_utils.log('Starting %s (%s) for %s url' % (worker.name, worker, cls.get_name()), xbmc.LOGDEBUG)
-    url=scraper_instance.get_url(video)
+    url = scraper_instance.get_url(video)
     log_utils.log('%s returned url %s from %s' % (cls.get_name(), url, worker), xbmc.LOGDEBUG)
-    related={}
-    related['class']=scraper_instance
-    if not url: url=''
-    related['url']=url
-    related['name']=related['class'].get_name()
+    related = {}
+    related['class'] = scraper_instance
+    if not url: url = ''
+    related['url'] = url
+    related['name'] = related['class'].get_name()
     related['label'] = '[%s] %s' % (related['name'], related['url'])
     q.put(related)
 
 # Run a task on startup. Settings and mode values must match task name
 def do_startup_task(task):
-    run_on_startup=ADDON.get_setting('auto-%s' % task)=='true' and ADDON.get_setting('%s-during-startup' % task) == 'true' 
+    run_on_startup = ADDON.get_setting('auto-%s' % task) == 'true' and ADDON.get_setting('%s-during-startup' % task) == 'true'
     if run_on_startup and not xbmc.abortRequested:
         log_utils.log('Service: Running startup task [%s]' % (task))
         now = datetime.datetime.now()
         xbmc.executebuiltin('RunPlugin(plugin://%s/?mode=%s)' % (ADDON.get_id(), task))
         db_connection.set_setting('%s-last_run' % (task), now.strftime("%Y-%m-%d %H:%M:%S.%f"))
-    
+
 # Run a recurring scheduled task. Settings and mode values must match task name
 def do_scheduled_task(task, isPlaying):
     now = datetime.datetime.now()
     if ADDON.get_setting('auto-%s' % task) == 'true':
-        next_run=get_next_run(task)
-        #log_utils.log("Update Status on [%s]: Currently: %s Will Run: %s" % (task, now, next_run), xbmc.LOGDEBUG)
+        next_run = get_next_run(task)
+        # log_utils.log("Update Status on [%s]: Currently: %s Will Run: %s" % (task, now, next_run), xbmc.LOGDEBUG)
         if now >= next_run:
             is_scanning = xbmc.getCondVisibility('Library.IsScanningVideo')
             if not is_scanning:
-                during_playback = ADDON.get_setting('%s-during-playback' % (task))=='true'
+                during_playback = ADDON.get_setting('%s-during-playback' % (task)) == 'true'
                 if during_playback or not isPlaying:
                     log_utils.log('Service: Running Scheduled Task: [%s]' % (task))
                     builtin = 'RunPlugin(plugin://%s/?mode=%s)' % (ADDON.get_id(), task)
@@ -456,13 +456,13 @@ def get_next_run(task):
     # strptime mysteriously fails sometimes with TypeError; this is a hacky workaround
     # note, they aren't 100% equal as time.strptime loses fractional seconds but they are close enough
     try:
-        last_run_string = db_connection.get_setting(task+'-last_run')
-        if not last_run_string: last_run_string=LONG_AGO
-        last_run=datetime.datetime.strptime(last_run_string, "%Y-%m-%d %H:%M:%S.%f")
+        last_run_string = db_connection.get_setting(task + '-last_run')
+        if not last_run_string: last_run_string = LONG_AGO
+        last_run = datetime.datetime.strptime(last_run_string, "%Y-%m-%d %H:%M:%S.%f")
     except (TypeError, ImportError):
-        last_run=datetime.datetime(*(time.strptime(last_run_string, '%Y-%m-%d %H:%M:%S.%f')[0:6]))
-    interval=datetime.timedelta(hours=float(ADDON.get_setting(task+'-interval')))
-    return (last_run+interval)
+        last_run = datetime.datetime(*(time.strptime(last_run_string, '%Y-%m-%d %H:%M:%S.%f')[0:6]))
+    interval = datetime.timedelta(hours=float(ADDON.get_setting(task + '-interval')))
+    return (last_run + interval)
 
 def url_exists(video):
     """
@@ -471,8 +471,8 @@ def url_exists(video):
     max_timeout = int(ADDON.get_setting('source_timeout'))
     log_utils.log('Checking for Url Existence: |%s|' % (video), xbmc.LOGDEBUG)
     for cls in relevant_scrapers(video.video_type):
-        if ADDON.get_setting('%s-sub_check' % (cls.get_name()))=='true':
-            scraper_instance=cls(max_timeout)
+        if ADDON.get_setting('%s-sub_check' % (cls.get_name())) == 'true':
+            scraper_instance = cls(max_timeout)
             url = scraper_instance.get_url(video)
             if url:
                 log_utils.log('Found url for |%s| @ %s: %s' % (video, cls.get_name(), url), xbmc.LOGDEBUG)
@@ -482,13 +482,13 @@ def url_exists(video):
     return False
 
 def relevant_scrapers(video_type=None, include_disabled=False, order_matters=False):
-    classes=scraper.Scraper.__class__.__subclasses__(scraper.Scraper)
-    relevant=[]
+    classes = scraper.Scraper.__class__.__subclasses__(scraper.Scraper)
+    relevant = []
     for cls in classes:
         if video_type is None or video_type in cls.provides():
             if include_disabled or scraper_enabled(cls.get_name()):
                 relevant.append(cls)
-    
+
     if order_matters:
         relevant.sort(key=get_source_sort_key)
     return relevant
@@ -501,7 +501,7 @@ def set_view(content, set_sort):
     # set content type so library shows more views and info
     if content:
         xbmcplugin.setContent(int(sys.argv[1]), content)
-    
+
     view = ADDON.get_setting('%s_view' % (content))
     if view != '0':
         log_utils.log('Setting View to %s (%s)' % (view, content), xbmc.LOGDEBUG)
@@ -518,16 +518,16 @@ def set_view(content, set_sort):
         xbmcplugin.addSortMethod(handle=int(sys.argv[1]), sortMethod=xbmcplugin.SORT_METHOD_GENRE)
 
 def make_day(date):
-    try: date=datetime.datetime.strptime(date,'%Y-%m-%d').date()
+    try: date = datetime.datetime.strptime(date, '%Y-%m-%d').date()
     except TypeError: date = datetime.datetime(*(time.strptime(date, '%Y-%m-%d')[0:6])).date()
-    today=datetime.date.today()
+    today = datetime.date.today()
     day_diff = (date - today).days
     if day_diff == -1:
-        date='YDA'
+        date = 'YDA'
     elif day_diff == 0:
-        date='TDA'
+        date = 'TDA'
     elif day_diff == 1:
-        date='TOM'
+        date = 'TOM'
     elif day_diff > 1 and day_diff < 7:
         date = date.strftime('%a')
 
@@ -535,7 +535,7 @@ def make_day(date):
 
 def make_time(utc_ts):
     local_time = time.localtime(utc_ts)
-    if ADDON.get_setting('calendar_time')=='1':
+    if ADDON.get_setting('calendar_time') == '1':
         time_format = '%H:%M'
         time_str = time.strftime(time_format, local_time)
     else:
@@ -549,27 +549,27 @@ def iso_2_utc(iso_ts):
     delim = -1
     if not iso_ts.endswith('Z'):
         delim = iso_ts.rfind('+')
-        if delim == -1:  delim = iso_ts.rfind('-')
-    
-    if delim>-1:
+        if delim == -1: delim = iso_ts.rfind('-')
+
+    if delim > -1:
         ts = iso_ts[:delim]
         sign = iso_ts[delim]
-        tz = iso_ts[delim+1:]
+        tz = iso_ts[delim + 1:]
     else:
         ts = iso_ts
         tz = None
-    
-    if ts.find('.')>-1:
-        ts  = ts[:ts.find('.')]
-        
-    try: d=datetime.datetime.strptime(ts,'%Y-%m-%dT%H:%M:%S')
+
+    if ts.find('.') > -1:
+        ts = ts[:ts.find('.')]
+
+    try: d = datetime.datetime.strptime(ts, '%Y-%m-%dT%H:%M:%S')
     except TypeError: d = datetime.datetime(*(time.strptime(ts, '%Y-%m-%dT%H:%M:%S')[0:6]))
-    
-    dif=datetime.timedelta()
+
+    dif = datetime.timedelta()
     if tz:
         hours, minutes = tz.split(':')
         hours = int(hours)
-        minutes= int(minutes)
+        minutes = int(minutes)
         if sign == '-':
             hours = -hours
             minutes = -minutes
@@ -577,40 +577,40 @@ def iso_2_utc(iso_ts):
     utc_dt = d - dif
     epoch = datetime.datetime.utcfromtimestamp(0)
     delta = utc_dt - epoch
-    try: seconds = delta.total_seconds() # works only on 2.7
-    except: seconds = delta.seconds + delta.days * 24 * 3600 # close enough
+    try: seconds = delta.total_seconds()  # works only on 2.7
+    except: seconds = delta.seconds + delta.days * 24 * 3600  # close enough
     return seconds
 
 def get_trakt_token():
-    username=ADDON.get_setting('username')
-    password=ADDON.get_setting('password')
-    token=ADDON.get_setting('trakt_token')
-    last_hash=ADDON.get_setting('last_hash')
-    cur_hash = hashlib.md5(username+password).hexdigest()
-    
+    username = ADDON.get_setting('username')
+    password = ADDON.get_setting('password')
+    token = ADDON.get_setting('trakt_token')
+    last_hash = ADDON.get_setting('last_hash')
+    cur_hash = hashlib.md5(username + password).hexdigest()
+
     if not token or cur_hash != last_hash:
         try:
-            token=trakt_api.login()
+            token = trakt_api.login()
             log_utils.log('Token Returned: %s' % (token), xbmc.LOGDEBUG)
         except Exception as e:
             log_utils.log('Login Failed: %s' % (e), xbmc.LOGWARNING)
             builtin = 'XBMC.Notification(%s,Login Failed: %s, 7500, %s)'
             xbmc.executebuiltin(builtin % (ADDON.get_name(), e, ICON_PATH))
-            token=''
-        
+            token = ''
+
         if token:
             ADDON.set_setting('last_hash', cur_hash)
-            
+
     ADDON.set_setting('trakt_token', token)
     return token
 
 def format_sub_label(sub):
     label = '%s - [%s] - (' % (sub['language'], sub['version'])
     if sub['completed']:
-        color='green'
+        color = 'green'
     else:
         label += '%s%% Complete, ' % (sub['percent'])
-        color='yellow'
+        color = 'yellow'
     if sub['hi']: label += 'HI, '
     if sub['corrected']: label += 'Corrected, '
     if sub['hd']: label += 'HD, '
@@ -618,53 +618,53 @@ def format_sub_label(sub):
         label = label[:-2] + ')'
     else:
         label = label[:-4]
-    label='[COLOR %s]%s[/COLOR]' % (color, label)
+    label = '[COLOR %s]%s[/COLOR]' % (color, label)
     return label
 
 def srt_indicators_enabled():
-    return (ADDON.get_setting('enable-subtitles')=='true' and (ADDON.get_setting('subtitle-indicator')=='true'))
+    return (ADDON.get_setting('enable-subtitles') == 'true' and (ADDON.get_setting('subtitle-indicator') == 'true'))
 
 def srt_download_enabled():
-    return (ADDON.get_setting('enable-subtitles')=='true' and (ADDON.get_setting('subtitle-download')=='true'))
+    return (ADDON.get_setting('enable-subtitles') == 'true' and (ADDON.get_setting('subtitle-download') == 'true'))
 
 def srt_show_enabled():
-    return (ADDON.get_setting('enable-subtitles')=='true' and (ADDON.get_setting('subtitle-show')=='true'))
+    return (ADDON.get_setting('enable-subtitles') == 'true' and (ADDON.get_setting('subtitle-show') == 'true'))
 
 def format_episode_label(label, season, episode, srts):
-    req_hi = ADDON.get_setting('subtitle-hi')=='true'
-    req_hd = ADDON.get_setting('subtitle-hd')=='true'
-    color='red'
-    percent=0
-    hi=None
-    hd=None
-    corrected=None
-    
+    req_hi = ADDON.get_setting('subtitle-hi') == 'true'
+    req_hd = ADDON.get_setting('subtitle-hd') == 'true'
+    color = 'red'
+    percent = 0
+    hi = None
+    hd = None
+    corrected = None
+
     for srt in srts:
-        if str(season)==srt['season'] and str(episode)==srt['episode']:
+        if str(season) == srt['season'] and str(episode) == srt['episode']:
             if not req_hi or srt['hi']:
                 if not req_hd or srt['hd']:
                     if srt['completed']:
-                        color='green'
-                        if not hi: hi=srt['hi']
-                        if not hd: hd=srt['hd']
-                        if not corrected: corrected=srt['corrected']
-                    elif color!='green':
-                        color='yellow'
-                        if float(srt['percent'])>percent:
-                            if not hi: hi=srt['hi']
-                            if not hd: hd=srt['hd']
-                            if not corrected: corrected=srt['corrected']
-                            percent=srt['percent']
-    
-    if color!='red':
+                        color = 'green'
+                        if not hi: hi = srt['hi']
+                        if not hd: hd = srt['hd']
+                        if not corrected: corrected = srt['corrected']
+                    elif color != 'green':
+                        color = 'yellow'
+                        if float(srt['percent']) > percent:
+                            if not hi: hi = srt['hi']
+                            if not hd: hd = srt['hd']
+                            if not corrected: corrected = srt['corrected']
+                            percent = srt['percent']
+
+    if color != 'red':
         label += ' [COLOR %s](SRT: ' % (color)
-        if color=='yellow':
+        if color == 'yellow':
             label += ' %s%%, ' % (percent)
         if hi: label += 'HI, '
         if hd: label += 'HD, '
         if corrected: label += 'Corrected, '
         label = label[:-2]
-        label+= ')[/COLOR]'
+        label += ')[/COLOR]'
     return label
 
 def get_force_title_list():
@@ -673,49 +673,49 @@ def get_force_title_list():
     return filter_list
 
 def calculate_success(name):
-    tries=ADDON.get_setting('%s_try' % (name))
+    tries = ADDON.get_setting('%s_try' % (name))
     fail = ADDON.get_setting('%s_fail' % (name))
     tries = int(tries) if tries else 0
     fail = int(fail) if fail else 0
-    rate = int(round((fail*100.0)/tries)) if tries>0 else 0
+    rate = int(round((fail * 100.0) / tries)) if tries > 0 else 0
     rate = 100 - rate
     return rate
 
 def record_timeouts(fails):
     for key in fails:
-        if fails[key]==True:
+        if fails[key] == True:
             log_utils.log('Recording Timeout of %s' % (key), xbmc.LOGWARNING)
             increment_setting('%s_fail' % key)
 
 def do_disable_check():
-    scrapers=relevant_scrapers()
-    auto_disable=ADDON.get_setting('auto-disable')
-    check_freq=int(ADDON.get_setting('disable-freq'))
-    disable_thresh=int(ADDON.get_setting('disable-thresh'))
+    scrapers = relevant_scrapers()
+    auto_disable = ADDON.get_setting('auto-disable')
+    check_freq = int(ADDON.get_setting('disable-freq'))
+    disable_thresh = int(ADDON.get_setting('disable-thresh'))
     for cls in scrapers:
         last_check = db_connection.get_setting('%s_check' % (cls.get_name()))
         last_check = int(last_check) if last_check else 0
-        tries=ADDON.get_setting('%s_try' % (cls.get_name()))
+        tries = ADDON.get_setting('%s_try' % (cls.get_name()))
         tries = int(tries) if tries else 0
-        if tries>0 and tries/check_freq>last_check/check_freq:
+        if tries > 0 and tries / check_freq > last_check / check_freq:
             ADDON.set_setting('%s_check' % (cls.get_name()), str(tries))
-            success_rate=calculate_success(cls.get_name())
-            if success_rate<disable_thresh:
+            success_rate = calculate_success(cls.get_name())
+            if success_rate < disable_thresh:
                 if auto_disable == DISABLE_SETTINGS.ON:
                     ADDON.set_setting('%s-enable' % (cls.get_name()), 'false')
                     builtin = "XBMC.Notification(%s,[COLOR blue]%s[/COLOR] Scraper Automatically Disabled, 5000, %s)" % (ADDON.get_name(), cls.get_name(), ICON_PATH)
                     xbmc.executebuiltin(builtin)
                 elif auto_disable == DISABLE_SETTINGS.PROMPT:
-                    dialog=xbmcgui.Dialog()
-                    line1='The [COLOR blue]%s[/COLOR] scraper timed out on [COLOR red]%s%%[/COLOR] of %s requests'  % (cls.get_name(), 100-success_rate, tries)
-                    line2= 'Each timeout wastes system resources and time.'
-                    line3='([I]If you keep it enabled, consider increasing the scraper timeout.[/I])'
+                    dialog = xbmcgui.Dialog()
+                    line1 = 'The [COLOR blue]%s[/COLOR] scraper timed out on [COLOR red]%s%%[/COLOR] of %s requests' % (cls.get_name(), 100 - success_rate, tries)
+                    line2 = 'Each timeout wastes system resources and time.'
+                    line3 = '([I]If you keep it enabled, consider increasing the scraper timeout.[/I])'
                     ret = dialog.yesno('SALTS', line1, line2, line3, 'Keep Enabled', 'Disable It')
                     if ret:
                         ADDON.set_setting('%s-enable' % (cls.get_name()), 'false')
 
 def menu_on(menu):
-    return ADDON.get_setting('show_%s' % (menu))=='true'
+    return ADDON.get_setting('show_%s' % (menu)) == 'true'
 
 def get_setting(setting):
     return ADDON.get_setting(setting)
@@ -726,7 +726,7 @@ def set_setting(setting, value):
 def increment_setting(setting):
     cur_value = get_setting(setting)
     cur_value = int(cur_value) if cur_value else 0
-    set_setting(setting, cur_value+1)
+    set_setting(setting, cur_value + 1)
 
 def show_requires_source(slug):
     show_str = ADDON.get_setting('exists_list')
@@ -745,7 +745,7 @@ def keep_search(section, search_text):
 
 def get_current_view():
     skinPath = xbmc.translatePath('special://skin/')
-    xml = os.path.join(skinPath,'addon.xml')
+    xml = os.path.join(skinPath, 'addon.xml')
     f = xbmcvfs.File(xml)
     read = f.read()
     f.close()
@@ -762,7 +762,7 @@ def get_current_view():
             if xbmc.getInfoLabel('Control.GetLabel(%s)' % (view)): return view
 
 def bookmark_exists(slug, season, episode):
-    if ADDON.get_setting('trakt_bookmark')=='true':
+    if ADDON.get_setting('trakt_bookmark') == 'true':
         bookmark = trakt_api.get_bookmark(slug, season, episode)
         return bookmark is not None
     else:
@@ -770,17 +770,17 @@ def bookmark_exists(slug, season, episode):
 
 # returns true if user chooses to resume, else false
 def get_resume_choice(slug, season, episode):
-    if ADDON.get_setting('trakt_bookmark')=='true':
+    if ADDON.get_setting('trakt_bookmark') == 'true':
         resume_point = '%s%%' % (trakt_api.get_bookmark(slug, season, episode))
         header = 'Trakt Bookmark Exists'
     else:
         resume_point = format_time(db_connection.get_bookmark(slug, season, episode))
         header = 'Local Bookmark Exists'
     question = 'Resume from %s' % (resume_point)
-    return xbmcgui.Dialog().yesno(header, question, '', '', 'Start from beginning', 'Resume')==1
+    return xbmcgui.Dialog().yesno(header, question, '', '', 'Start from beginning', 'Resume') == 1
 
 def get_bookmark(slug, season, episode):
-    if ADDON.get_setting('trakt_bookmark')=='true':
+    if ADDON.get_setting('trakt_bookmark') == 'true':
         bookmark = trakt_api.get_bookmark(slug, season, episode)
     else:
         bookmark = db_connection.get_bookmark(slug, season, episode)
@@ -802,15 +802,15 @@ def download_media(url, path, file_name):
         request.add_header('User-Agent', USER_AGENT)
         request.add_unredirected_header('Host', request.get_host())
         response = urllib2.urlopen(request)
-        
+
         content_length = 0
         if 'Content-Length' in response.info():
             content_length = int(response.info()['Content-Length'])
-            
+
         file_name = file_name.replace('.strm', get_extension(url, response))
         full_path = os.path.join(path, file_name)
         log_utils.log('Downloading: %s -> %s' % (url, full_path), xbmc.LOGDEBUG)
-        
+
         path = xbmc.makeLegalFilename(path)
         if not xbmcvfs.exists(path):
             try:
@@ -826,22 +826,22 @@ def download_media(url, path, file_name):
                 dialog = xbmcgui.DialogProgress()
             else:
                 dialog = xbmcgui.DialogProgressBG()
-                
+
             dialog.create('Stream All The Sources', 'Downloading: %s...' % (file_name))
             dialog.update(0)
         while True:
             data = response.read(CHUNK_SIZE)
             if not data:
                 break
-            
+
             if progress == PROGRESS.WINDOW and dialog.iscanceled():
-                break 
-            
+                break
+
             total_len += len(data)
             if not file_desc.write(data):
                 raise Exception('Failed to write file')
-            
-            percent_progress = (total_len)*100/content_length if content_length>0 else 0
+
+            percent_progress = (total_len) * 100 / content_length if content_length > 0 else 0
             log_utils.log('Position : %s / %s = %s%%' % (total_len, content_length, percent_progress), xbmc.LOGDEBUG)
             if progress == PROGRESS.WINDOW:
                 dialog.update(percent_progress)
@@ -855,7 +855,7 @@ def download_media(url, path, file_name):
         file_desc.close()
         if progress:
             dialog.close()
-            
+
     except Exception as e:
         msg = 'Error (%s) during download: %s' % (str(e), file_name)
         log_utils.log('Error (%s) during download: %s -> %s' % (str(e), url, file_name), xbmc.LOGERROR)
@@ -866,32 +866,31 @@ def get_extension(url, response):
     filename = url2name(url)
     if 'Content-Disposition' in response.info():
         cd_list = response.info()['Content-Disposition'].split('filename=')
-        if len(cd_list)>1:
+        if len(cd_list) > 1:
             filename = cd_list[-1]
             if filename[0] == '"' or filename[0] == "'":
                 filename = filename[1:-1]
-    elif response.url != url: 
+    elif response.url != url:
         filename = url2name(response.url)
-    ext=os.path.splitext(filename)[1]
+    ext = os.path.splitext(filename)[1]
     if not ext: ext = DEFAULT_EXT
     return ext
-    
+
 def url2name(url):
     return os.path.basename(urllib.unquote(urlparse.urlsplit(url)[2]))
 
 def sort_progress(episodes, sort_order):
     if sort_order == TRAKT_SORT.TITLE:
-        return sorted(episodes, key=lambda x:x['show']['title'].lstrip('The '))
+        return sorted(episodes, key=lambda x: x['show']['title'].lstrip('The '))
     elif sort_order == TRAKT_SORT.ACTIVITY:
-        return sorted(episodes, key=lambda x:iso_2_utc(x['last_watched_at']), reverse=True)
+        return sorted(episodes, key=lambda x: iso_2_utc(x['last_watched_at']), reverse=True)
     elif sort_order == TRAKT_SORT.LEAST_COMPLETED:
-        return sorted(episodes, key=lambda x:(x['percent_completed'], x['completed']))
+        return sorted(episodes, key=lambda x: (x['percent_completed'], x['completed']))
     elif sort_order == TRAKT_SORT.MOST_COMPLETED:
-        return sorted(episodes, key=lambda x:(x['percent_completed'], x['completed']), reverse=True)
+        return sorted(episodes, key=lambda x: (x['percent_completed'], x['completed']), reverse=True)
     elif sort_order == TRAKT_SORT.PREVIOUSLY_AIRED:
-        return sorted(episodes, key=lambda x:iso_2_utc(x['episode']['first_aired']))
+        return sorted(episodes, key=lambda x: iso_2_utc(x['episode']['first_aired']))
     elif sort_order == TRAKT_SORT.RECENTLY_AIRED:
-        return sorted(episodes, key=lambda x:iso_2_utc(x['episode']['first_aired']), reverse=True)
-    else: # default sort set to activity
-        return sorted(episodes, key=lambda x:x['last_watched_at'], reverse=True)
-
+        return sorted(episodes, key=lambda x: iso_2_utc(x['episode']['first_aired']), reverse=True)
+    else:  # default sort set to activity
+        return sorted(episodes, key=lambda x: x['last_watched_at'], reverse=True)
