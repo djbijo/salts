@@ -74,7 +74,6 @@ class IWatchOnline_Scraper(scraper.Scraper):
                 now = min_age = int(time.time())
                 for match in re.finditer(pattern, fragment, re.DOTALL):
                     url, host, age, quality = match.groups()
-                    print url, host, age, quality
                     age = self.__get_age(now, age)
                     quality=quality.upper()
                     if age>max_age: max_age=age
