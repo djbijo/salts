@@ -37,9 +37,9 @@ from salts_lib.constants import HOST_Q
 from salts_lib.constants import Q_ORDER
 from salts_lib.constants import BLOG_Q_MAP
 
-BASE_URL=''
+BASE_URL = ''
 CAPTCHA_BASE_URL = 'http://www.google.com/recaptcha/api'
-COOKIEPATH=xbmc.translatePath(xbmcaddon.Addon().getAddonInfo('profile'))
+COOKIEPATH = xbmc.translatePath(xbmcaddon.Addon().getAddonInfo('profile'))
 
 Q_LIST = [item[0] for item in sorted(Q_ORDER.items(), key=lambda x:x[1])]
 
@@ -52,25 +52,25 @@ class abstractclassmethod(classmethod):
         callable.__isabstractmethod__ = True
         super(abstractclassmethod, self).__init__(callable)
 
-DEFAULT_TIMEOUT=30
+DEFAULT_TIMEOUT = 30
 
 class Scraper(object):
     __metaclass__ = abc.ABCMeta
-    base_url=BASE_URL
-    
+    base_url = BASE_URL
+
     def __init__(self, timeout=DEFAULT_TIMEOUT):
         self.db_connection = DB_Connection()
 
     @abstractclassmethod
     def provides(cls):
         """
-        Must return a list/set/frozenset of VIDEO_TYPES that are supported by this scraper. Is a class method so that instances of the class 
+        Must return a list/set/frozenset of VIDEO_TYPES that are supported by this scraper. Is a class method so that instances of the class
         don't have to be instantiated to determine they are not useful
-        
+
         * Datatypes set or frozenset are preferred as existence checking is faster with sets
         """
         raise NotImplementedError
-        
+
     @abstractclassmethod
     def get_name(cls):
         """
@@ -79,12 +79,12 @@ class Scraper(object):
         """
         raise NotImplementedError
 
-    @abc.abstractmethod 
+    @abc.abstractmethod
     def resolve_link(self, link):
         """
         Must return a string that is a urlresolver resolvable link given a link that this scraper supports
-        
-        link: a url fragment associated with this site that can be resolved to a hoster link 
+
+        link: a url fragment associated with this site that can be resolved to a hoster link
 
         * The purpose is many streaming sites provide the actual hoster link in a separate page from link
         on the video page.
@@ -92,16 +92,16 @@ class Scraper(object):
         """
         raise NotImplementedError
 
-    @abc.abstractmethod 
+    @abc.abstractmethod
     def format_source_label(self, item):
         """
         Must return a string that is to be the label to be used for this source in the "Choose Source" dialog
-        
+
         item: one element of the list that is returned from get_sources for this scraper
         """
         raise NotImplementedError
 
-    @abc.abstractmethod 
+    @abc.abstractmethod
     def get_sources(self, video):
         """
         Must return a list of dictionaries that are potential link to hoster sites (or links to links to hoster sites)
@@ -113,44 +113,44 @@ class Scraper(object):
             * quality: one of the QUALITIES values, or None if unknown; users can sort sources by quality
             * views: count of the views from the site for this source or None is unknown; Users can sort sources by views
             * rating: a value between 0 and 100; 0 being worst, 100 the best, or None if unknown. Users can sort sources by rating.
-            * direct: True if url is a direct link to a media file; False if not. If not present; assumption is direct 
+            * direct: True if url is a direct link to a media file; False if not. If not present; assumption is direct
             * other keys are allowed as needed if they would be useful (e.g. for format_source_label)
-        
+
         video is an object of type ScraperVideo:
             video_type: one of VIDEO_TYPES for whatever the sources should be for
             title: the title of the tv show or movie
             year: the year of the tv show or movie
             season: only present for tv shows; the season number of the video for which sources are requested
             episode: only present for tv shows; the episode number of the video for which sources are requested
-            ep_title: only present for tv shows; the episode title if available        
+            ep_title: only present for tv shows; the episode title if available
         """
         raise NotImplementedError
 
-    @abc.abstractmethod 
+    @abc.abstractmethod
     def get_url(self, video):
         """
         Must return a url for the site this scraper is associated with that is related to this video.
-        
+
         video is an object of type ScraperVideo:
             video_type: one of VIDEO_TYPES this url is for (e.g. EPISODE urls might be different than TVSHOW urls)
             title: the title of the tv show or movie
             year: the year of the tv show or movie
             season: only present for season or episode VIDEO_TYPES; the season number for the url being requested
             episode: only present for season or episode VIDEO_TYPES; the episode number for the url being requested
-            ep_title: only present for tv shows; the episode title if available        
-        
+            ep_title: only present for tv shows; the episode title if available
+
         * Generally speaking, domain should not be included
         """
         raise NotImplementedError
-    
+
     def _default_get_url(self, video):
-        temp_video_type=video.video_type
-        if video.video_type == VIDEO_TYPES.EPISODE: temp_video_type=VIDEO_TYPES.TVSHOW
+        temp_video_type = video.video_type
+        if video.video_type == VIDEO_TYPES.EPISODE: temp_video_type = VIDEO_TYPES.TVSHOW
         url = None
 
         result = self.db_connection.get_related_url(temp_video_type, video.title, video.year, self.get_name())
         if result:
-            url=result[0][0]
+            url = result[0][0]
             log_utils.log('Got local related url: |%s|%s|%s|%s|%s|' % (temp_video_type, video.title, video.year, self.get_name(), url))
         else:
             results = self.search(temp_video_type, video.title, video.year)
@@ -158,33 +158,33 @@ class Scraper(object):
                 url = results[0]['url']
                 self.db_connection.set_related_url(temp_video_type, video.title, video.year, self.get_name(), url)
 
-        if url and video.video_type==VIDEO_TYPES.EPISODE:
+        if url and video.video_type == VIDEO_TYPES.EPISODE:
             result = self.db_connection.get_related_url(VIDEO_TYPES.EPISODE, video.title, video.year, self.get_name(), video.season, video.episode)
             if result:
-                url=result[0][0]
+                url = result[0][0]
                 log_utils.log('Got local related url: |%s|%s|%s|' % (video, self.get_name(), url))
             else:
                 show_url = url
                 url = self._get_episode_url(show_url, video)
                 if url:
                     self.db_connection.set_related_url(VIDEO_TYPES.EPISODE, video.title, video.year, self.get_name(), url, video.season, video.episode)
-        
+
         return url
 
-    @abc.abstractmethod 
+    @abc.abstractmethod
     def search(self, video_type, title, year):
         """
         Must return a list of results returned from the site associated with this scraper when doing a search using the input parameters
-        
+
         If it does return results, it must be a list of dictionaries. Each dictionary must contain at least the following:
             * title: title of the result
             * year: year of the result
             * url: a url fragment that is the url on the site associated with this scraper for this season result item
-        
+
         video_type: one of the VIDEO_TYPES being searched for. Only tvshows and movies are expected generally
         title: the title being search for
         year: the year being search for
-        
+
         * Method must be provided, but can raise NotImplementedError if search not available on the site
         """
         raise NotImplementedError
@@ -196,25 +196,25 @@ class Scraper(object):
         The list returned by each scraper is aggregated into a big settings.xml string, and then if it differs from the current settings xml in the Scrapers category
         the existing settings.xml fragment is removed and replaced by the new string
         """
-        name=cls.get_name()
+        name = cls.get_name()
         return ['         <setting id="%s-enable" type="bool" label="%s Enabled" default="true" visible="true"/>' % (name, name),
                     '         <setting id="%s-base_url" type="text" label="     Base Url" default="%s" visible="eq(-1,true)"/>' % (name, cls.base_url),
                     '         <setting id="%s-sub_check" type="bool" label="     Include in Page Existence checks?" default="true" visible="eq(-2,true)"/>' % (name),
                     '         <setting id="%s_try" type="number" default="0" visible="false"/>' % (name),
                     '         <setting id="%s_fail" type="number" default="0" visible="false"/>' % (name),
-                    '         <setting id="%s_check" type="number" default="0" visible="false"/>' % (name),]
-    
+                    '         <setting id="%s_check" type="number" default="0" visible="false"/>' % (name), ]
+
     @classmethod
     def _disable_sub_check(cls, settings):
         for i in reversed(xrange(len(settings))):
             if 'sub_check' in settings[i]:
-                settings[i]=settings[i].replace('default="true"', 'default="false"')
+                settings[i] = settings[i].replace('default="true"', 'default="false"')
         return settings
-        
+
     def _cached_http_get(self, url, base_url, timeout, cookies=None, data=None, headers=None, cache_limit=8):
-        if cookies is None: cookies={}
+        if cookies is None: cookies = {}
         if timeout == 0: timeout = None
-        if headers is None: headers={}
+        if headers is None: headers = {}
         referer = headers['Referer'] if 'Referer' in headers else url
         log_utils.log('Getting Url: %s cookie=|%s| data=|%s| extra headers=|%s|' % (url, cookies, data, headers))
         db_connection = DB_Connection()
@@ -222,39 +222,39 @@ class Scraper(object):
         if html:
             log_utils.log('Returning cached result for: %s' % (url), xbmc.LOGDEBUG)
             return html
-        
+
         try:
             cj = self._set_cookies(base_url, cookies)
-            if data is not None: data=urllib.urlencode(data, True)    
+            if data is not None: data = urllib.urlencode(data, True)
             request = urllib2.Request(url, data=data)
             request.add_header('User-Agent', USER_AGENT)
             request.add_unredirected_header('Host', request.get_host())
             request.add_unredirected_header('Referer', referer)
-            for key in headers: request.add_header(key,headers[key])
+            for key in headers: request.add_header(key, headers[key])
             response = urllib2.urlopen(request, timeout=timeout)
             cj.save(ignore_discard=True, ignore_expires=True)
             if response.info().get('Content-Encoding') == 'gzip':
-                buf = StringIO( response.read())
+                buf = StringIO(response.read())
                 f = gzip.GzipFile(fileobj=buf)
                 html = f.read()
             else:
-                html=response.read()
+                html = response.read()
         except Exception as e:
             log_utils.log('Error (%s) during scraper http get: %s' % (str(e), url), xbmc.LOGWARNING)
             return ''
-        
+
         db_connection.cache_url(url, html)
         return html
 
     def _set_cookies(self, base_url, cookies):
-        domain=urlparse.urlsplit(base_url).hostname
-        cookie_file = os.path.join(COOKIEPATH,'%s_cookies.lwp' % (self.get_name()))
-        cj=cookielib.LWPCookieJar(cookie_file)
+        domain = urlparse.urlsplit(base_url).hostname
+        cookie_file = os.path.join(COOKIEPATH, '%s_cookies.lwp' % (self.get_name()))
+        cj = cookielib.LWPCookieJar(cookie_file)
         opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(cj))
         urllib2.install_opener(opener)
         for key in cookies:
-            c=cookielib.Cookie(0, key, cookies[key], port=None, port_specified=False, domain=domain, domain_specified=True,
-                                domain_initial_dot=False, path='/', path_specified=True, secure=False, expires=None, discard=False, comment=None, 
+            c = cookielib.Cookie(0, key, cookies[key], port=None, port_specified=False, domain=domain, domain_specified=True,
+                                domain_initial_dot=False, path='/', path_specified=True, secure=False, expires=None, discard=False, comment=None,
                                 comment_url=None, rest={})
             cj.set_cookie(c)
         try: cj.load(ignore_discard=True)
@@ -266,7 +266,7 @@ class Scraper(object):
         html = self._cached_http_get(challenge_url, CAPTCHA_BASE_URL, timeout=DEFAULT_TIMEOUT, cache_limit=0)
         match = re.search("challenge\s+\:\s+'([^']+)", html)
         captchaimg = 'http://www.google.com/recaptcha/api/image?c=%s' % (match.group(1))
-        img = xbmcgui.ControlImage(450,0,400,130,captchaimg)
+        img = xbmcgui.ControlImage(450, 0, 400, 130, captchaimg)
         wdlg = xbmcgui.WindowDialog()
         wdlg.addControl(img)
         wdlg.show()
@@ -275,30 +275,30 @@ class Scraper(object):
             header += ' (Try: %s/%s)' % (tries, max_tries)
         kb = xbmc.Keyboard('', header, False)
         kb.doModal()
-        solution=''
+        solution = ''
         if kb.isConfirmed():
             solution = kb.getText()
             if not solution:
-                raise Exception ('You must enter text in the image to access video')
+                raise Exception('You must enter text in the image to access video')
         wdlg.close()
-        return {'recaptcha_challenge_field':match.group(1),'recaptcha_response_field':solution}
-    
+        return {'recaptcha_challenge_field': match.group(1), 'recaptcha_response_field': solution}
+
     def _default_get_episode_url(self, show_url, video, episode_pattern, title_pattern=''):
         log_utils.log('Default Episode Url: |%s|%s|%s|' % (self.base_url, show_url, str(video).decode('utf-8', 'replace')), xbmc.LOGDEBUG)
         url = urlparse.urljoin(self.base_url, show_url)
         html = self._http_get(url, cache_limit=2)
         if html:
             force_title = self._force_title(video)
-            
-            if not force_title: 
+
+            if not force_title:
                 match = re.search(episode_pattern, html, re.DOTALL)
                 if match:
                     url = match.group(1)
                     return url.replace(self.base_url, '')
             else:
                 log_utils.log('Skipping S&E matching as title search is forced on: %s' % (video.slug), xbmc.LOGDEBUG)
-            
-            if (force_title or xbmcaddon.Addon().getSetting('title-fallback')=='true') and video.ep_title and title_pattern:
+
+            if (force_title or xbmcaddon.Addon().getSetting('title-fallback') == 'true') and video.ep_title and title_pattern:
                 norm_title = self._normalize_title(video.ep_title)
                 for match in re.finditer(title_pattern, html, re.DOTALL | re.I):
                     url, title = match.groups()
@@ -309,11 +309,11 @@ class Scraper(object):
             slug_str = xbmcaddon.Addon().getSetting('force_title_match')
             slug_list = slug_str.split('|') if slug_str else []
             return video.slug in slug_list
-    
+
     def _normalize_title(self, title):
-        new_title=title.upper()
-        new_title=re.sub('\W', '', new_title)
-        #log_utils.log('In title: |%s| Out title: |%s|' % (title,new_title), xbmc.LOGDEBUG)
+        new_title = title.upper()
+        new_title = re.sub('\W', '', new_title)
+        # log_utils.log('In title: |%s| Out title: |%s|' % (title,new_title), xbmc.LOGDEBUG)
         return new_title
 
     def _blog_get_quality(self, video, q_str, host):
@@ -324,12 +324,12 @@ class Scraper(object):
         q_str.replace(video.title, '')
         q_str.replace(str(video.year), '')
         q_str = q_str.upper()
-        
+
         post_quality = None
         for key in Q_LIST:
             if any(q in q_str for q in BLOG_Q_MAP[key]):
-                post_quality=key
-        
+                post_quality = key
+
         return self._get_quality(video, host, post_quality)
 
     def _get_quality(self, video, host, base_quality=None):
@@ -341,40 +341,39 @@ class Scraper(object):
                 quality = QUALITIES.HIGH
         else:
             quality = base_quality
-        
-        host_quality=None
+
+        host_quality = None
         if host:
             for key in HOST_Q:
                 if any(host in hostname for hostname in HOST_Q[key]):
-                    host_quality=key
-        
-        #log_utils.log('q_str: %s, host: %s, post q: %s, host q: %s' % (q_str, host, post_quality, host_quality), xbmc.LOGDEBUG)
+                    host_quality = key
+
+        # log_utils.log('q_str: %s, host: %s, post q: %s, host q: %s' % (q_str, host, post_quality, host_quality), xbmc.LOGDEBUG)
         if host_quality is not None and Q_ORDER[host_quality] < Q_ORDER[quality]:
-            quality=host_quality
+            quality = host_quality
 
         return quality
-    
+
     def _width_get_quality(self, width):
-        width=int(width)
-        if width>=1280:
-            quality=QUALITIES.HD
-        elif width>640:
-            quality=QUALITIES.HIGH
-        elif width>320:
-            quality=QUALITIES.MEDIUM
+        width = int(width)
+        if width >= 1280:
+            quality = QUALITIES.HD
+        elif width > 640:
+            quality = QUALITIES.HIGH
+        elif width > 320:
+            quality = QUALITIES.MEDIUM
         else:
-            quality=QUALITIES.LOW
+            quality = QUALITIES.LOW
         return quality
 
     def _height_get_quality(self, height):
-        height=int(height)
+        height = int(height)
         if height > 480:
-            quality=QUALITIES.HD
+            quality = QUALITIES.HD
         elif height >= 400:
-            quality=QUALITIES.HIGH
+            quality = QUALITIES.HIGH
         elif height > 200:
-            quality=QUALITIES.MEDIUM
+            quality = QUALITIES.MEDIUM
         else:
-            quality=QUALITIES.LOW
+            quality = QUALITIES.LOW
         return quality
-    

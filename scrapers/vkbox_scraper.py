@@ -35,29 +35,30 @@ STREAM_URL = 'https://vk.com/video_ext.php?oid=%s&id=%s&hash=%s'
 VKBOX_AGENT = 'android-async-http/1.4.1 (http://loopj.com/android-async-http)'
 
 class VKBox_Scraper(scraper.Scraper):
-    base_url=BASE_URL
+    base_url = BASE_URL
+
     def __init__(self, timeout=scraper.DEFAULT_TIMEOUT):
-        self.timeout=timeout
+        self.timeout = timeout
         self.db_connection = DB_Connection()
         self.base_url = xbmcaddon.Addon().getSetting('%s-base_url' % (self.get_name()))
-   
+
     @classmethod
     def provides(cls):
         return frozenset([VIDEO_TYPES.TVSHOW, VIDEO_TYPES.EPISODE, VIDEO_TYPES.MOVIE])
-    
+
     @classmethod
     def get_name(cls):
         return 'VKBox'
-    
+
     def resolve_link(self, link):
         return link
-    
+
     def format_source_label(self, item):
-        label='[%s] %s' % (item['quality'], item['host'])
+        label = '[%s] %s' % (item['quality'], item['host'])
         return label
-    
+
     def get_sources(self, video):
-        source_url=self.get_url(video)
+        source_url = self.get_url(video)
 
         hosters = []
         if source_url:
@@ -66,9 +67,9 @@ class VKBox_Scraper(scraper.Scraper):
                 magic_num = int(params['h'][0]) + int(params['u'][0]) + int(params['y'][0])
             else:
                 magic_num = int(params['id'][0]) + 537
-            
+
             url = urlparse.urljoin(self.base_url, source_url)
-            html = self._http_get(url, headers = {'User-Agent': VKBOX_AGENT}, cache_limit=.5)
+            html = self._http_get(url, headers={'User-Agent': VKBOX_AGENT}, cache_limit=.5)
             if html:
                 try:
                     json_data = json.loads(html)
@@ -78,7 +79,7 @@ class VKBox_Scraper(scraper.Scraper):
                     try: langs = json_data['langs']
                     except: langs = json_data
                     for lang in langs:
-                        if lang['lang']=='en':
+                        if lang['lang'] == 'en':
                             stream_url = STREAM_URL % (str(int(lang['apple']) + magic_num), str(int(lang['google']) + magic_num), lang['microsoft'])
                             hoster = {'multi-part': False, 'url': stream_url, 'host': 'vk.com', 'class': self, 'quality': QUALITIES.HD, 'views': None, 'rating': None, 'direct': False}
                             hosters.append(hoster)
@@ -87,23 +88,23 @@ class VKBox_Scraper(scraper.Scraper):
                         log_utils.log('No english language found from vkbox: %s' % (langs), xbmc.LOGWARNING)
             else:
                 log_utils.log('No data returned from vkbox: %s' % (url), xbmc.LOGWARNING)
-            
+
         return hosters
 
     def get_url(self, video):
         return super(VKBox_Scraper, self)._default_get_url(video)
-    
+
     def search(self, video_type, title, year):
-        results=[]
+        results = []
         json_data = self.__get_json(video_type)
         norm_title = self._normalize_title(title)
         for item in json_data:
-            match_year = item.get('year','')
+            match_year = item.get('year', '')
             if norm_title in self._normalize_title(item['title']) and (not year or not match_year or year == match_year):
-                result={'url': LINKS[video_type] % (item['id']), 'title': item['title'], 'year': match_year}
+                result = {'url': LINKS[video_type] % (item['id']), 'title': item['title'], 'year': match_year}
                 results.append(result)
         return results
-    
+
     def __get_json(self, video_type):
         url = urlparse.urljoin(self.base_url, ZIP_URL)
         zip_data = self._http_get(url, cache_limit=0)
@@ -114,11 +115,11 @@ class VKBox_Scraper(scraper.Scraper):
             return json.loads(data)
         else:
             return []
-        
+
     def _get_episode_url(self, show_url, video):
         if not self._force_title(video):
             show_id = urlparse.parse_qs(urlparse.urlparse(show_url).query)['id'][0]
             return LINKS[video.video_type] % (show_id, int(video.season), int(video.episode))
-    
+
     def _http_get(self, url, headers=None, cache_limit=8):
         return super(VKBox_Scraper, self)._cached_http_get(url, self.base_url, self.timeout, headers=headers, cache_limit=cache_limit)

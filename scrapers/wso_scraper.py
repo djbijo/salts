@@ -19,7 +19,6 @@ import scraper
 import re
 import urlparse
 import xbmcaddon
-import urllib
 from salts_lib.db_utils import DB_Connection
 from salts_lib.constants import VIDEO_TYPES
 from salts_lib.constants import QUALITIES
@@ -28,21 +27,22 @@ BASE_URL = 'http://watchseries-online.ch'
 QUALITY_MAP = {'HD': QUALITIES.HIGH, 'CAM': QUALITIES.LOW, 'BR-RIP': QUALITIES.HD, 'UNKNOWN': QUALITIES.MEDIUM, 'DVD-RIP': QUALITIES.HIGH}
 
 class WSO_Scraper(scraper.Scraper):
-    base_url=BASE_URL
+    base_url = BASE_URL
+
     def __init__(self, timeout=scraper.DEFAULT_TIMEOUT):
-        self.timeout=timeout
+        self.timeout = timeout
         self.db_connection = DB_Connection()
         self.base_url = xbmcaddon.Addon().getSetting('%s-base_url' % (self.get_name()))
         self.max_pages = int(xbmcaddon.Addon().getSetting('%s-max_pages' % (self.get_name())))
-   
+
     @classmethod
     def provides(cls):
         return frozenset([VIDEO_TYPES.TVSHOW, VIDEO_TYPES.SEASON, VIDEO_TYPES.EPISODE])
-    
+
     @classmethod
     def get_name(cls):
         return 'wso.ch'
-    
+
     def resolve_link(self, link):
         url = urlparse.urljoin(self.base_url, link)
         html = self._http_get(url, cache_limit=.5)
@@ -51,18 +51,18 @@ class WSO_Scraper(scraper.Scraper):
             return match.group(1)
         else:
             return link
-    
+
     def format_source_label(self, item):
-        label='[%s] %s (%s views)' % (item['quality'], item['host'], item['views'])
+        label = '[%s] %s (%s views)' % (item['quality'], item['host'], item['views'])
         return label
-    
+
     def get_sources(self, video):
-        source_url=self.get_url(video)
+        source_url = self.get_url(video)
         hosters = []
         if source_url:
             url = urlparse.urljoin(self.base_url, source_url)
             html = self._http_get(url, cache_limit=.5)
-            
+
             pattern = 'class="[^"]+tdhost".*?href="([^"]+)">([^<]+).*?class="[^"]*link_views"\s+id="(\d+)'
             for match in re.finditer(pattern, html, re.DOTALL):
                 stream_url, host, views = match.groups()
@@ -72,11 +72,11 @@ class WSO_Scraper(scraper.Scraper):
 
     def get_url(self, video):
         return super(WSO_Scraper, self)._default_get_url(video)
-    
+
     @classmethod
     def get_settings(cls):
         settings = super(WSO_Scraper, cls).get_settings()
-        name=cls.get_name()
+        name = cls.get_name()
         settings.append('         <setting id="%s-max_pages" type="slider" range="1,50" option="int" label="     Maximum Pages" default="1" visible="eq(-6,true)"/>' % (name))
         return settings
 
@@ -84,7 +84,7 @@ class WSO_Scraper(scraper.Scraper):
         url = urlparse.urljoin(self.base_url, 'http://watchseries-online.ch/2005/07/index.html')
         html = self._http_get(url, cache_limit=24)
 
-        results=[]
+        results = []
         for list_match in re.finditer('class="ddmcc"(.*?)</div>', html, re.DOTALL):
             list_frag = list_match.group(1)
             norm_title = self._normalize_title(title)
@@ -92,16 +92,16 @@ class WSO_Scraper(scraper.Scraper):
             for match in re.finditer(pattern, list_frag):
                 url, match_title = match.groups('')
                 if norm_title in self._normalize_title(match_title):
-                    result={'url': url.replace(self.base_url, ''), 'title': match_title, 'year': ''}
+                    result = {'url': url.replace(self.base_url, ''), 'title': match_title, 'year': ''}
                     results.append(result)
 
         return results
-    
+
     def _get_episode_url(self, show_url, video):
         episode_pattern = 'class="PostHeader">\s*<a\s+href="([^"]+)[^>]+title="[^"]+[Ss]%02d[Ee]%02d[ "]' % (int(video.season), int(video.episode))
         print episode_pattern
-        title_pattern=''
-        for page in xrange(1,self.max_pages+1):
+        title_pattern = ''
+        for page in xrange(1, self.max_pages + 1):
             url = show_url
             if page > 1: url += '%s/page/%s' % (show_url, page)
             print url

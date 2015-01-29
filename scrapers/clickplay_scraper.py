@@ -29,76 +29,77 @@ from salts_lib.constants import QUALITIES
 BASE_URL = 'http://clickplay.to'
 
 class ClickPlay_Scraper(scraper.Scraper):
-    base_url=BASE_URL
+    base_url = BASE_URL
+
     def __init__(self, timeout=scraper.DEFAULT_TIMEOUT):
-        self.timeout=timeout
+        self.timeout = timeout
         self.db_connection = DB_Connection()
         self.base_url = xbmcaddon.Addon().getSetting('%s-base_url' % (self.get_name()))
-   
+
     @classmethod
     def provides(cls):
         return frozenset([VIDEO_TYPES.TVSHOW, VIDEO_TYPES.SEASON, VIDEO_TYPES.EPISODE])
-    
+
     @classmethod
     def get_name(cls):
         return 'clickplay.to'
-    
+
     def resolve_link(self, link):
         return link
-    
+
     def format_source_label(self, item):
-        label='[%s] %s ' % (item['quality'], item['host'])
+        label = '[%s] %s ' % (item['quality'], item['host'])
         return label
-    
+
     def get_sources(self, video):
-        source_url=self.get_url(video)
+        source_url = self.get_url(video)
         hosters = []
         if source_url:
             url = urlparse.urljoin(self.base_url, source_url)
             html = self._http_get(url, cache_limit=.5)
-            
+
             match = re.search('proxy\.link=([^"&]+)', html)
             if match:
                 proxy_link = match.group(1)
                 proxy_link = proxy_link.split('*', 1)[-1]
-                stream_url = GKDecrypter.decrypter(198,128).decrypt(proxy_link, base64.urlsafe_b64decode('bW5pcUpUcUJVOFozS1FVZWpTb00='),'ECB').split('\0')[0]
+                stream_url = GKDecrypter.decrypter(198, 128).decrypt(proxy_link, base64.urlsafe_b64decode('bW5pcUpUcUJVOFozS1FVZWpTb00='), 'ECB').split('\0')[0]
                 if 'vk.com' in stream_url.lower():
                     hoster = {'multi-part': False, 'host': 'vk.com', 'class': self, 'url': stream_url, 'quality': QUALITIES.HD, 'views': None, 'rating': None, 'direct': False}
                     hosters.append(hoster)
                 elif 'picasaweb' in stream_url.lower():
-                    html = self._http_get(stream_url, cache_limit=.5)                    
+                    html = self._http_get(stream_url, cache_limit=.5)
                     sources = self.__parse_google(html)
                     if sources:
                         for source in sources:
                             hoster = {'multi-part': False, 'url': source, 'class': self, 'quality': sources[source], 'host': 'clickplay.to', 'rating': None, 'views': None, 'direct': True}
                             hosters.append(hoster)
-                    
+
         return hosters
 
     def __parse_google(self, html):
-        pattern='"url"\s*:\s*"([^"]+)"\s*,\s*"height"\s*:\s*\d+\s*,\s*"width"\s*:\s*(\d+)\s*,\s*"type"\s*:\s*"video/'
-        sources={}
+        pattern = '"url"\s*:\s*"([^"]+)"\s*,\s*"height"\s*:\s*\d+\s*,\s*"width"\s*:\s*(\d+)\s*,\s*"type"\s*:\s*"video/'
+        sources = {}
         for match in re.finditer(pattern, html):
             url, width = match.groups()
             url = url.replace('%3D', '=')
-            sources[url]=self._width_get_quality(width)
+            sources[url] = self._width_get_quality(width)
         return sources
 
     def get_url(self, video):
         return super(ClickPlay_Scraper, self)._default_get_url(video)
-    
+
     def _get_episode_url(self, show_url, video):
         season_url = show_url + 'season-%d/' % (int(video.season))
         episode_pattern = 'href="([^"]+/season-%d/episode-%d[^"]+)' % (int(video.season), int(video.episode))
         title_pattern = 'href="([^"]+)"\s+title="[^"]+/\s*([^"]+)'
         return super(ClickPlay_Scraper, self)._default_get_episode_url(season_url, video, episode_pattern, title_pattern)
-        
+
     def search(self, video_type, title, year):
         url = urlparse.urljoin(self.base_url, '/search/')
         url += urllib.quote(title)
         html = self._http_get(url, cache_limit=8)
 
-        results=[]
+        results = []
         pattern = 'href="([^"]+)"\s+class="article.*?class="article-title">([^<]+)'
         for match in re.finditer(pattern, html, re.DOTALL):
             url, match_title_year = match.groups()
@@ -106,14 +107,14 @@ class ClickPlay_Scraper(scraper.Scraper):
             if r:
                 match_title, match_year = r.groups()
             else:
-                match_title=match_title_year
-                match_year=''
-                
+                match_title = match_title_year
+                match_year = ''
+
             if not year or not match_year or year == match_year:
-                result={'url': url.replace(self.base_url, ''), 'title': match_title, 'year': match_year}
+                result = {'url': url.replace(self.base_url, ''), 'title': match_title, 'year': match_year}
                 results.append(result)
 
         return results
-    
+
     def _http_get(self, url, data=None, cache_limit=8):
         return super(ClickPlay_Scraper, self)._cached_http_get(url, self.base_url, self.timeout, data=data, cache_limit=cache_limit)

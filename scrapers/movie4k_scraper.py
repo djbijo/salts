@@ -20,7 +20,6 @@ import urllib
 import urlparse
 import re
 import xbmcaddon
-from salts_lib import log_utils
 from salts_lib.constants import VIDEO_TYPES
 from salts_lib.db_utils import DB_Connection
 from salts_lib.constants import QUALITIES
@@ -29,20 +28,21 @@ BASE_URL = 'http://www.movie4k.to'
 QUALITY_MAP = {None: None, '0': QUALITIES.LOW, '1': QUALITIES.LOW, '2': QUALITIES.MEDIUM, '3': QUALITIES.MEDIUM, '4': QUALITIES.HIGH, '5': QUALITIES.HIGH}
 
 class Movie4K_Scraper(scraper.Scraper):
-    base_url=BASE_URL
+    base_url = BASE_URL
+
     def __init__(self, timeout=scraper.DEFAULT_TIMEOUT):
-        self.timeout=timeout
+        self.timeout = timeout
         self.db_connection = DB_Connection()
         self.base_url = xbmcaddon.Addon().getSetting('%s-base_url' % (self.get_name()))
-    
+
     @classmethod
     def provides(cls):
         return frozenset([VIDEO_TYPES.TVSHOW, VIDEO_TYPES.SEASON, VIDEO_TYPES.EPISODE, VIDEO_TYPES.MOVIE])
-    
+
     @classmethod
     def get_name(cls):
         return 'Movie4K'
-    
+
     def resolve_link(self, link):
         url = urlparse.urljoin(self.base_url, link)
         html = self._http_get(url, cache_limit=0)
@@ -52,14 +52,14 @@ class Movie4K_Scraper(scraper.Scraper):
 
     def format_source_label(self, item):
         return '[%s] %s (%s/100)' % (item['quality'], item['host'], item['rating'])
-    
+
     def get_sources(self, video):
-        source_url= self.get_url(video)
-        hosters=[]
+        source_url = self.get_url(video)
+        hosters = []
         if source_url:
-            url = urlparse.urljoin(self.base_url,source_url)
+            url = urlparse.urljoin(self.base_url, source_url)
             html = self._http_get(url, cache_limit=.5)
-            
+
             pattern = r'links\[\d+\].*?href=\\"([^\\]+).*?alt=\\"([^\s]+)(.*)'
             for match in re.finditer(pattern, html):
                 url, host, extra = match.groups()
@@ -69,7 +69,7 @@ class Movie4K_Scraper(scraper.Scraper):
                     smiley = r.group(1)
                 else:
                     smiley = None
-                    
+
                 hoster = {'multi-part': False, 'host': host.lower(), 'class': self, 'quality': QUALITY_MAP[smiley], 'views': None, 'rating': None, 'url': url, 'direct': False}
                 hosters.append(hoster)
         return hosters
@@ -82,26 +82,26 @@ class Movie4K_Scraper(scraper.Scraper):
         search_url += urllib.quote_plus(title)
         cookies = {'onlylanguage': 'en', 'lang': 'en'}
         html = self._http_get(search_url, cookies=cookies, cache_limit=.25)
-        results=[]
+        results = []
         pattern = 'id="tdmovies">\s*<a\s+href="([^"]+)">([^<]+).*?id="f7">(.*?)</TD>'
         for match in re.finditer(pattern, html, re.DOTALL):
             url, title, extra = match.groups('')
             if (video_type == VIDEO_TYPES.MOVIE and '(TVshow)' in title) or (video_type == VIDEO_TYPES.TVSHOW and '(TVshow)' not in title):
                 continue
-            
+
             title = title.replace('(TVshow)', '')
             title = title.strip()
-            
+
             r = re.search('>(\d{4})<', extra)
             if r:
                 match_year = r.group(1)
             else:
                 match_year = ''
-            
+
             if not year or not match_year or year == match_year:
-                url = url.replace(self.base_url,'')
+                url = url.replace(self.base_url, '')
                 if not url.startswith('/'): url = '/' + url
-                result={'url': url, 'title': title, 'year': match_year}
+                result = {'url': url, 'title': title, 'year': match_year}
                 results.append(result)
         return results
 
@@ -116,10 +116,9 @@ class Movie4K_Scraper(scraper.Scraper):
                 match = re.search(pattern, fragment)
                 if match:
                     url = match.group(1)
-                    url = url.replace(self.base_url,'')
+                    url = url.replace(self.base_url, '')
                     if not url.startswith('/'): url = '/' + url
                     return url
-
 
     def _http_get(self, url, cookies=None, data=None, cache_limit=8):
         return super(Movie4K_Scraper, self)._cached_http_get(url, self.base_url, self.timeout, cookies=cookies, data=data, cache_limit=cache_limit)

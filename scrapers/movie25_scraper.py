@@ -20,7 +20,6 @@ import urllib
 import urlparse
 import re
 import xbmcaddon
-from salts_lib import log_utils
 from salts_lib.constants import VIDEO_TYPES
 from salts_lib.db_utils import DB_Connection
 from salts_lib.constants import QUALITIES
@@ -29,43 +28,44 @@ QUALITY_MAP = {'DVD': QUALITIES.HIGH, 'CAM': QUALITIES.LOW}
 BASE_URL = 'http://movie25.cm'
 
 class Movie25_Scraper(scraper.Scraper):
-    base_url=BASE_URL
+    base_url = BASE_URL
+
     def __init__(self, timeout=scraper.DEFAULT_TIMEOUT):
-        self.timeout=timeout
+        self.timeout = timeout
         self.db_connection = DB_Connection()
         self.base_url = xbmcaddon.Addon().getSetting('%s-base_url' % (self.get_name()))
-    
+
     @classmethod
     def provides(cls):
         return frozenset([VIDEO_TYPES.MOVIE])
-    
+
     @classmethod
     def get_name(cls):
         return 'movie25'
-    
+
     def resolve_link(self, link):
         url = urlparse.urljoin(self.base_url, link)
         html = self._http_get(url, cache_limit=0)
-        match = re.search('href=\'([^\']*)\'"\s+value="Click Here to Play"', html, re.DOTALL|re.I)
+        match = re.search('href=\'([^\']*)\'"\s+value="Click Here to Play"', html, re.DOTALL | re.I)
         if match:
             return match.group(1)
 
     def format_source_label(self, item):
         return '[%s] %s' % (item['quality'], item['host'])
-    
+
     def get_sources(self, video):
-        source_url= self.get_url(video)
-        hosters=[]
+        source_url = self.get_url(video)
+        hosters = []
         if source_url:
-            url = urlparse.urljoin(self.base_url,source_url)
+            url = urlparse.urljoin(self.base_url, source_url)
             html = self._http_get(url, cache_limit=.5)
-            
-            quality=None
-            match = re.search('Links - Quality\s*([^ ]*)\s*</h1>', html, re.DOTALL|re.I)
+
+            quality = None
+            match = re.search('Links - Quality\s*([^ ]*)\s*</h1>', html, re.DOTALL | re.I)
             if match:
                 quality = QUALITY_MAP.get(match.group(1).upper())
-    
-            pattern='li class="link_name">\s*(.*?)\s*</li>.*?href="([^"]+)'
+
+            pattern = 'li class="link_name">\s*(.*?)\s*</li>.*?href="([^"]+)'
             for match in re.finditer(pattern, html, re.DOTALL):
                 host, url = match.groups()
                 hoster = {'multi-part': False, 'host': host, 'class': self, 'url': url, 'quality': self._get_quality(video, host, quality), 'rating': None, 'views': None, 'direct': False}
@@ -80,11 +80,11 @@ class Movie25_Scraper(scraper.Scraper):
         search_url += urllib.quote_plus('%s %s' % (title, year))
         search_url += '&submit='
         html = self._http_get(search_url, cache_limit=.25)
-        pattern ='class="movie_about_text">.*?href="([^"]+).*?>\s+(.*?)\s*\(?(\d{4})?\)?\s+</a></h1>'
-        results=[]
+        pattern = 'class="movie_about_text">.*?href="([^"]+).*?>\s+(.*?)\s*\(?(\d{4})?\)?\s+</a></h1>'
+        results = []
         for match in re.finditer(pattern, html, re.DOTALL):
             url, title, year = match.groups('')
-            result={'url': url, 'title': title, 'year': year}
+            result = {'url': url, 'title': title, 'year': year}
             results.append(result)
         return results
 

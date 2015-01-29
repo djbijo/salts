@@ -20,7 +20,6 @@ import urllib
 import urlparse
 import re
 import xbmcaddon
-from salts_lib import log_utils
 from salts_lib.constants import VIDEO_TYPES
 from salts_lib.db_utils import DB_Connection
 from salts_lib.constants import QUALITIES
@@ -28,47 +27,48 @@ from salts_lib.constants import QUALITIES
 BASE_URL = 'http://film-streaming.in'
 
 class FilmStreaming_Scraper(scraper.Scraper):
-    base_url=BASE_URL
+    base_url = BASE_URL
+
     def __init__(self, timeout=scraper.DEFAULT_TIMEOUT):
-        self.timeout=timeout
+        self.timeout = timeout
         self.db_connection = DB_Connection()
         self.base_url = xbmcaddon.Addon().getSetting('%s-base_url' % (self.get_name()))
-    
+
     @classmethod
     def provides(cls):
         return frozenset([VIDEO_TYPES.MOVIE])
-    
+
     @classmethod
     def get_name(cls):
         return 'FilmStreaming.in'
-    
+
     def resolve_link(self, link):
         if 'videomega' in link:
             html = self._http_get(link, cache_limit=.5)
             match = re.search('ref="([^"]+)', html)
             if match:
                 return 'http://videomega.tv/iframe.php?ref=%s' % (match.group(1))
-        else:          
+        else:
             return link
 
     def format_source_label(self, item):
-        return '[%s] %s (%s views) (%s/100)' % (item['quality'], item['host'],  item['views'], item['rating'])
-    
+        return '[%s] %s (%s views) (%s/100)' % (item['quality'], item['host'], item['views'], item['rating'])
+
     def get_sources(self, video):
-        source_url= self.get_url(video)
-        hosters=[]
+        source_url = self.get_url(video)
+        hosters = []
         if source_url:
-            url = urlparse.urljoin(self.base_url,source_url)
+            url = urlparse.urljoin(self.base_url, source_url)
             html = self._http_get(url, cache_limit=.5)
 
-            views=None
-            match=re.search('class="sirala">([,\d]+) views', html, re.DOTALL)
+            views = None
+            match = re.search('class="sirala">([,\d]+) views', html, re.DOTALL)
             if match:
                 views = match.group(1)
-                views = views.replace(',','')
-            
+                views = views.replace(',', '')
+
             for match in re.finditer('class="tab_part".*?src=["\']([^\'"]+)', html):
-                url =match.group(1)
+                url = match.group(1)
                 host = urlparse.urlparse(url).hostname
                 hoster = {'multi-part': False, 'url': url, 'host': host, 'class': self, 'quality': QUALITIES.HIGH, 'views': views, 'rating': None, 'direct': False}
                 hosters.append(hoster)
@@ -81,13 +81,13 @@ class FilmStreaming_Scraper(scraper.Scraper):
         search_url = urlparse.urljoin(self.base_url, '/?s=')
         search_url += urllib.quote_plus('%s %s' % (title, year))
         html = self._http_get(search_url, cache_limit=.25)
-        results=[]
+        results = []
         if not re.search('I am sorry, what are you looking for', html, re.I):
-            pattern ='FilmBaslik">.*?href="([^"]+)"\s+title="([^"]+)\s+\((\d{4})\)'
+            pattern = 'FilmBaslik">.*?href="([^"]+)"\s+title="([^"]+)\s+\((\d{4})\)'
             for match in re.finditer(pattern, html, re.DOTALL):
                 url, title, match_year = match.groups('')
                 if not year or not match_year or year == match_year:
-                    result={'url': url.replace(self.base_url,''), 'title': title, 'year': match_year}
+                    result = {'url': url.replace(self.base_url, ''), 'title': title, 'year': match_year}
                     results.append(result)
         return results
 

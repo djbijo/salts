@@ -20,46 +20,46 @@ import urllib
 import urlparse
 import re
 import xbmcaddon
-from salts_lib import log_utils
 from salts_lib.constants import VIDEO_TYPES
 from salts_lib.db_utils import DB_Connection
 from salts_lib.constants import QUALITIES
 BASE_URL = 'http://afdah.com'
 
 class Afdah_Scraper(scraper.Scraper):
-    base_url=BASE_URL
+    base_url = BASE_URL
+
     def __init__(self, timeout=scraper.DEFAULT_TIMEOUT):
-        self.timeout=timeout
+        self.timeout = timeout
         self.db_connection = DB_Connection()
         self.base_url = xbmcaddon.Addon().getSetting('%s-base_url' % (self.get_name()))
-    
+
     @classmethod
     def provides(cls):
         return frozenset([VIDEO_TYPES.MOVIE])
-    
+
     @classmethod
     def get_name(cls):
         return 'afdah'
-    
+
     def resolve_link(self, link):
         return link
-    
+
     def format_source_label(self, item):
         return '[%s] %s (%s/100)' % (item['quality'], item['host'], item['rating'])
-    
+
     def get_sources(self, video):
-        source_url= self.get_url(video)
-        hosters=[]
+        source_url = self.get_url(video)
+        hosters = []
         if source_url:
-            url = urlparse.urljoin(self.base_url,source_url)
+            url = urlparse.urljoin(self.base_url, source_url)
             html = self._http_get(url, cache_limit=.5)
-            
+
             match = re.search('This movie is of poor quality', html, re.I)
             if match:
-                quality=QUALITIES.LOW
+                quality = QUALITIES.LOW
             else:
-                quality=QUALITIES.HIGH
-                
+                quality = QUALITIES.HIGH
+
             pattern = 'href="([^"]+)".*play_video.gif'
             for match in re.finditer(pattern, html, re.I):
                 url = match.group(1)
@@ -74,12 +74,12 @@ class Afdah_Scraper(scraper.Scraper):
     def search(self, video_type, title, year):
         search_url = urlparse.urljoin(self.base_url, '/?s=%s&x=0&y=0&type=title' % (urllib.quote_plus(title)))
         html = self._http_get(search_url, cache_limit=.25)
-        pattern ='<div><b>Title:</b>\s*(.*?)\s*<br><b>Year:</b>\s*(\d+)\s*\|.*?href="([^"]+)'
-        results=[]
+        pattern = '<div><b>Title:</b>\s*(.*?)\s*<br><b>Year:</b>\s*(\d+)\s*\|.*?href="([^"]+)'
+        results = []
         for match in re.finditer(pattern, html, re.DOTALL | re.I):
             title, match_year, url = match.groups('')
             if not year or not match_year or year == match_year:
-                result={'url': url.replace(self.base_url,''), 'title': title, 'year': year}
+                result = {'url': url.replace(self.base_url, ''), 'title': title, 'year': year}
                 results.append(result)
         return results
 
