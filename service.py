@@ -47,22 +47,22 @@ class Service(xbmc.Player):
         self.win.clearProperty('salts.playing.episode')
         self.win.clearProperty('salts.playing.srt')
         self.win.clearProperty('salts.playing.resume')
-        self.tracked = False    
+        self.tracked = False
         self._totalTime = 999999
         self.slug = None
         self.season = None
         self.episode = None
-        self._lastPos=0
+        self._lastPos = 0
 
     def onPlayBackStarted(self):
         log_utils.log('Service: Playback started')
-        playing = self.win.getProperty('salts.playing')=='True'
+        playing = self.win.getProperty('salts.playing') == 'True'
         self.slug = self.win.getProperty('salts.playing.slug')
         self.season = self.win.getProperty('salts.playing.season')
         self.episode = self.win.getProperty('salts.playing.episode')
         srt_path = self.win.getProperty('salts.playing.srt')
         resume_point = self.win.getProperty('salts.playing.trakt_resume')
-        if playing: #Playback is ours
+        if playing:   # Playback is ours
             log_utils.log('Service: tracking progress...')
             self.tracked = True
             if srt_path:
@@ -71,9 +71,9 @@ class Service(xbmc.Player):
             else:
                 self.showSubtitles(False)
 
-        self._totalTime=0
+        self._totalTime = 0
         while self._totalTime == 0:
-            try: 
+            try:
                 self._totalTime = self.getTotalTime()
             except RuntimeError:
                 self._totalTime = 0
@@ -83,23 +83,23 @@ class Service(xbmc.Player):
         if resume_point:
             resume_time = float(resume_point) * self._totalTime / 100
             log_utils.log("Resume Percent: %s, Resume Time: %s Total Time: %s" % (resume_point, resume_time, self._totalTime), xbmc.LOGDEBUG)
-            self.seekTime(resume_time )
+            self.seekTime(resume_time)
 
     def onPlayBackStopped(self):
         log_utils.log('Service: Playback Stopped')
         if self.tracked:
             playedTime = float(self._lastPos)
             try: percent_played = int((playedTime / self._totalTime) * 100)
-            except: percent_played=0 # guard div by zero
+            except: percent_played = 0  # guard div by zero
             pTime = utils.format_time(playedTime)
             tTime = utils.format_time(self._totalTime)
             log_utils.log('Service: Played %s of %s total = %s%%' % (pTime, tTime, percent_played), xbmc.LOGDEBUG)
             if playedTime == 0 and self._totalTime == 999999:
                 log_utils.log('XBMC silently failed to start playback', xbmc.LOGWARNING)
-            elif playedTime>=5:
+            elif playedTime >= 5:
                 log_utils.log('Service: Setting bookmark on |%s|%s|%s| to %s seconds' % (self.slug, self.season, self.episode, playedTime), xbmc.LOGDEBUG)
                 db_connection.set_bookmark(self.slug, playedTime, self.season, self.episode)
-                if percent_played>=75:
+                if percent_played >= 75:
                     if xbmc.getCondVisibility('System.HasAddon(script.trakt)'):
                         run = 'RunScript(script.trakt, action=sync, silent=True)'
                         xbmc.executebuiltin(run)
@@ -108,11 +108,11 @@ class Service(xbmc.Player):
     def onPlayBackEnded(self):
         log_utils.log('Service: Playback completed')
         self.onPlayBackStopped()
-            
+
 monitor = Service()
 utils.do_startup_task(MODES.UPDATE_SUBS)
 
-errors=0
+errors = 0
 while not xbmc.abortRequested:
     try:
         isPlaying = monitor.isPlaying()
@@ -127,7 +127,7 @@ while not xbmc.abortRequested:
         else:
             log_utils.log('Service: Error (%s) received..(%s/%s)...Continuing Service...' % (e, errors, MAX_ERRORS), xbmc.LOGERROR)
     else:
-        errors=0
+        errors = 0
 
     xbmc.sleep(1000)
 log_utils.log('Service: shutting down...')

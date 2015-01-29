@@ -38,16 +38,16 @@ from scrapers import ScraperVideo
 
 _SALTS = Addon('plugin.video.salts', sys.argv)
 ICON_PATH = os.path.join(_SALTS.get_path(), 'icon.png')
-username=_SALTS.get_setting('username')
-password=_SALTS.get_setting('password')
-TOKEN=utils.get_trakt_token()
-use_https=_SALTS.get_setting('use_https')=='true'
-trakt_timeout=int(_SALTS.get_setting('trakt_timeout'))
-list_size=int(_SALTS.get_setting('list_size'))
+username = _SALTS.get_setting('username')
+password = _SALTS.get_setting('password')
+TOKEN = utils.get_trakt_token()
+use_https = _SALTS.get_setting('use_https') == 'true'
+trakt_timeout = int(_SALTS.get_setting('trakt_timeout'))
+list_size = int(_SALTS.get_setting('list_size'))
 
-trakt_api=Trakt_API(username,password, TOKEN, use_https, list_size, trakt_timeout)
-url_dispatcher=URL_Dispatcher()
-db_connection=DB_Connection()
+trakt_api = Trakt_API(username, password, TOKEN, use_https, list_size, trakt_timeout)
+url_dispatcher = URL_Dispatcher()
+db_connection = DB_Connection()
 
 global urlresolver
 
@@ -56,8 +56,8 @@ def main_menu():
     db_connection.init_database()
     if not TOKEN:
         remind_count = int(_SALTS.get_setting('remind_count'))
-        remind_max=5
-        if remind_count<remind_max:
+        remind_max = 5
+        if remind_count < remind_max:
             remind_count += 1
             log_utils.log('Showing Config reminder')
             builtin = 'XBMC.Notification(%s,(%s/%s) Configure Trakt Account for more options, 7500, %s)'
@@ -65,7 +65,7 @@ def main_menu():
             _SALTS.set_setting('remind_count', str(remind_count))
     else:
         _SALTS.set_setting('remind_count', '0')
-    
+
     if _SALTS.get_setting('auto-disable') != DISABLE_SETTINGS.OFF:
         utils.do_disable_check()
 
@@ -129,12 +129,12 @@ def addon_settings():
 
 @url_dispatcher.register(MODES.BROWSE, ['section'])
 def browse_menu(section):
-    if section==SECTIONS.TV:
-        section_label='TV Shows'
-        search_img='television_search.png'
+    if section == SECTIONS.TV:
+        section_label = 'TV Shows'
+        search_img = 'television_search.png'
     else:
-        section_label='Movies'
-        search_img='movies_search.png'
+        section_label = 'Movies'
+        search_img = 'movies_search.png'
 
     if utils.menu_on('trending'): _SALTS.add_directory({'mode': MODES.TRENDING, 'section': section}, {'title': 'Trending %s' % (section_label)}, img=utils.art('trending.png'), fanart=utils.art('fanart.jpg'))
     if utils.menu_on('popular'): _SALTS.add_directory({'mode': MODES.POPULAR, 'section': section}, {'title': 'Popular %s' % (section_label)}, img=utils.art('popular.png'), fanart=utils.art('fanart.jpg'))
@@ -147,8 +147,8 @@ def browse_menu(section):
         if utils.menu_on('watchlist'): _SALTS.add_directory({'mode': MODES.SHOW_WATCHLIST, 'section': section}, {'title': 'My Watchlist'}, img=utils.art('my_watchlist.png'), fanart=utils.art('fanart.jpg'))
         if utils.menu_on('my_lists'): _SALTS.add_directory({'mode': MODES.MY_LISTS, 'section': section}, {'title': 'My Lists'}, img=utils.art('my_lists.png'), fanart=utils.art('fanart.jpg'))
 #     if utils.menu_on('other_lists'): _SALTS.add_directory({'mode': MODES.OTHER_LISTS, 'section': section}, {'title': 'Other Lists'}, img=utils.art('other_lists.png'), fanart=utils.art('fanart.jpg'))
-    if section==SECTIONS.TV:
-        if TOKEN: 
+    if section == SECTIONS.TV:
+        if TOKEN:
             if utils.menu_on('progress'): add_refresh_item({'mode': MODES.SHOW_PROGRESS}, 'My Next Episodes', utils.art('my_progress.png'), utils.art('fanart.jpg'))
             if utils.menu_on('my_cal'): add_refresh_item({'mode': MODES.MY_CAL}, 'My Calendar', utils.art('my_calendar.png'), utils.art('fanart.jpg'))
         if utils.menu_on('general_cal'): add_refresh_item({'mode': MODES.CAL}, 'General Calendar', utils.art('calendar.png'), utils.art('fanart.jpg'))
@@ -198,42 +198,42 @@ def force_refresh(refresh_mode, section=None, slug=None, username=None):
     elif refresh_mode == MODES.SHOW_LIST: 
         trakt_api.show_list(slug, section, username, cached=False)
     else:
-        log_utils.log('Force refresh on unsupported mode: |%s|' % (refresh_mode)) 
+        log_utils.log('Force refresh on unsupported mode: |%s|' % (refresh_mode))
         return
-        
+
     log_utils.log('Force refresh complete: |%s|%s|%s|%s|' % (refresh_mode, section, slug, username))
     builtin = "XBMC.Notification(%s,Force Refresh Complete, 2000, %s)" % (_SALTS.get_name(), ICON_PATH)
     xbmc.executebuiltin(builtin)
 
 @url_dispatcher.register(MODES.SCRAPERS)
 def scraper_settings():
-    scrapers=utils.relevant_scrapers(None, True, True)
-    if _SALTS.get_setting('toggle_enable')=='true':
-        label='**Enable All Scrapers**'
+    scrapers = utils.relevant_scrapers(None, True, True)
+    if _SALTS.get_setting('toggle_enable') == 'true':
+        label = '**Enable All Scrapers**'
     else:
-        label='**Disable All Scrapers**'
+        label = '**Disable All Scrapers**'
     _SALTS.add_directory({'mode': MODES.TOGGLE_ALL}, {'title': label}, img=utils.art('scraper.png'), fanart=utils.art('fanart.jpg'))
-    
+
     for i, cls in enumerate(scrapers):
         label = '%s (Provides: %s)' % (cls.get_name(), str(list(cls.provides())).replace("'", ""))
         label = '%s (Success: %s%%)' % (label, utils.calculate_success(cls.get_name()))
-        if not utils.scraper_enabled(cls.get_name()): 
+        if not utils.scraper_enabled(cls.get_name()):
             label = '[COLOR darkred]%s[/COLOR]' % (label)
-            toggle_label='Enable Scraper'
+            toggle_label = 'Enable Scraper'
         else:
-            toggle_label='Disable Scraper'
+            toggle_label = 'Disable Scraper'
         liz = xbmcgui.ListItem(label=label, iconImage=utils.art('scraper.png'), thumbnailImage=utils.art('scraper.png'))
         liz.setProperty('fanart_image', utils.art('fanart.jpg'))
         liz.setProperty('IsPlayable', 'false')
         liz.setInfo('video', {'title': label})
         liz_url = _SALTS.build_plugin_url({'mode': MODES.TOGGLE_SCRAPER, 'name': cls.get_name()})
-        
-        menu_items=[]
-        if i>0:
-            queries = {'mode': MODES.MOVE_SCRAPER, 'name': cls.get_name(), 'direction': DIRS.UP, 'other': scrapers[i-1].get_name()}
+
+        menu_items = []
+        if i > 0:
+            queries = {'mode': MODES.MOVE_SCRAPER, 'name': cls.get_name(), 'direction': DIRS.UP, 'other': scrapers[i - 1].get_name()}
             menu_items.append(('Move Up', 'RunPlugin(%s)' % (_SALTS.build_plugin_url(queries))), )
-        if i<len(scrapers)-1:
-            queries = {'mode': MODES.MOVE_SCRAPER, 'name': cls.get_name(), 'direction': DIRS.DOWN, 'other': scrapers[i+1].get_name()}
+        if i < len(scrapers) - 1:
+            queries = {'mode': MODES.MOVE_SCRAPER, 'name': cls.get_name(), 'direction': DIRS.DOWN, 'other': scrapers[i + 1].get_name()}
             menu_items.append(('Move Down', 'RunPlugin(%s)' % (_SALTS.build_plugin_url(queries))), )
 
         queries = {'mode': MODES.MOVE_TO, 'name': cls.get_name()}
@@ -254,24 +254,24 @@ def move_to(name):
     if new_pos:
         new_pos = int(new_pos)
         old_key = sort_key[name]
-        new_key=-new_pos+1
-        if (new_pos<=0 or new_pos>len(sort_key)) or old_key==new_key:
+        new_key = -new_pos + 1
+        if (new_pos <= 0 or new_pos > len(sort_key)) or old_key == new_key:
             return
-        
+
         for key in sort_key:
             this_key = sort_key[key]
             # moving scraper up
-            if new_key>old_key:
+            if new_key > old_key:
                 # move everything between the old and new down
-                if this_key>old_key and this_key<=new_key:
+                if this_key > old_key and this_key <= new_key:
                     sort_key[key] -= 1
             # moving scraper down
             else:
                 # move everything between the old and new up
-                if this_key>new_key and this_key<=new_key:
-                    sort_key[key] += 1    
-            
-        sort_key[name]=new_key
+                if this_key > new_key and this_key <= new_key:
+                    sort_key[key] += 1
+
+        sort_key[name] = new_key
     _SALTS.set_setting('source_sort_order', utils.make_source_sort_string(sort_key))
     xbmc.executebuiltin("XBMC.Container.Refresh")
 
