@@ -45,7 +45,7 @@ class LosMovies_Scraper(scraper.Scraper):
         return link
 
     def format_source_label(self, item):
-        return '[%s] %s (%s/100)' % (item['quality'], item['host'], item['rating'])
+        return '[%s] %s' % (item['quality'], item['host'])
 
     def get_sources(self, video):
         source_url = self.get_url(video)
@@ -68,6 +68,7 @@ class LosMovies_Scraper(scraper.Scraper):
                     host = urlparse.urlsplit(url).hostname.replace('embed.', '')
                     url = url.replace('&amp;', '&')
                     hoster = {'multi-part': False, 'host': host, 'class': self, 'quality': self._width_get_quality(width), 'views': None, 'rating': None, 'url': url, 'direct': False}
+                    hoster['quality'] = self._get_quality(video, host, hoster['quality'])
                     hosters.append(hoster)
         return hosters
 

@@ -198,12 +198,6 @@
          <setting id="FilmStreaming.in_try" type="number" default="0" visible="false"/>
          <setting id="FilmStreaming.in_fail" type="number" default="0" visible="false"/>
          <setting id="FilmStreaming.in_check" type="number" default="0" visible="false"/>
-         <setting id="Alluc.to-enable" type="bool" label="Alluc.to Enabled" default="true" visible="true"/>
-         <setting id="Alluc.to-base_url" type="text" label="     Base Url" default="http://dir.alluc.to" visible="eq(-1,true)"/>
-         <setting id="Alluc.to-sub_check" type="bool" label="     Include in Page Existence checks?" default="true" visible="eq(-2,true)"/>
-         <setting id="Alluc.to_try" type="number" default="0" visible="false"/>
-         <setting id="Alluc.to_fail" type="number" default="0" visible="false"/>
-         <setting id="Alluc.to_check" type="number" default="0" visible="false"/>
          <setting id="OnlineMovies-enable" type="bool" label="OnlineMovies Enabled" default="true" visible="true"/>
          <setting id="OnlineMovies-base_url" type="text" label="     Base Url" default="http://onlinemovies.pro" visible="eq(-1,true)"/>
          <setting id="OnlineMovies-sub_check" type="bool" label="     Include in Page Existence checks?" default="true" visible="eq(-2,true)"/>

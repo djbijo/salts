@@ -51,7 +51,7 @@ class Movie4K_Scraper(scraper.Scraper):
             return match.group(1)
 
     def format_source_label(self, item):
-        return '[%s] %s (%s/100)' % (item['quality'], item['host'], item['rating'])
+        return '[%s] %s' % (item['quality'], item['host'])
 
     def get_sources(self, video):
         source_url = self.get_url(video)
@@ -70,7 +70,7 @@ class Movie4K_Scraper(scraper.Scraper):
                 else:
                     smiley = None
 
-                hoster = {'multi-part': False, 'host': host.lower(), 'class': self, 'quality': QUALITY_MAP[smiley], 'views': None, 'rating': None, 'url': url, 'direct': False}
+                hoster = {'multi-part': False, 'host': host.lower(), 'class': self, 'quality': self._get_quality(video, host, QUALITY_MAP[smiley]), 'views': None, 'rating': None, 'url': url, 'direct': False}
                 hosters.append(hoster)
         return hosters
 

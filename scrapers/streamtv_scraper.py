@@ -58,7 +58,7 @@ class StreamTV_Scraper(scraper.Scraper):
             for match in re.finditer('postTabs_titles.*?iframe.*?src="([^"]+)', html, re.I | re.DOTALL):
                 stream_url = match.group(1)
                 host = urlparse.urlparse(stream_url).hostname.lower()
-                hoster = {'multi-part': False, 'host': host, 'class': self, 'url': stream_url, 'quality': self._blog_get_quality(video, '', host), 'views': None, 'rating': None, 'direct': False}
+                hoster = {'multi-part': False, 'host': host, 'class': self, 'url': stream_url, 'quality': self._get_quality(video, host, None), 'views': None, 'rating': None, 'direct': False}
                 hosters.append(hoster)
 
         return hosters
