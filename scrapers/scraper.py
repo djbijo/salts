@@ -344,9 +344,11 @@ class Scraper(object):
 
         host_quality = None
         if host:
+            hl = host.lower()
             for key in HOST_Q:
-                if any(host in hostname for hostname in HOST_Q[key]):
+                if any(hostname in hl for hostname in HOST_Q[key]):
                     host_quality = key
+                    break
 
         # log_utils.log('q_str: %s, host: %s, post q: %s, host q: %s' % (q_str, host, post_quality, host_quality), xbmc.LOGDEBUG)
         if host_quality is not None and Q_ORDER[host_quality] < Q_ORDER[quality]:

@@ -64,7 +64,7 @@ class Afdah_Scraper(scraper.Scraper):
             for match in re.finditer(pattern, html, re.I):
                 url = match.group(1)
                 host = urlparse.urlparse(url).hostname
-                hoster = {'multi-part': False, 'url': url, 'host': host, 'class': self, 'quality': quality, 'rating': None, 'views': None, 'direct': False}
+                hoster = {'multi-part': False, 'url': url, 'host': host, 'class': self, 'quality': self._get_quality(video, host, quality), 'rating': None, 'views': None, 'direct': False}
                 hosters.append(hoster)
         return hosters
 

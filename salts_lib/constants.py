@@ -69,12 +69,10 @@ BLOG_Q_MAP[QUALITIES.HIGH] = ['HDRIP', 'DVDRIP', 'BRRIP', 'BDRIP']
 BLOG_Q_MAP[QUALITIES.HD] = ['720', '1080']
 
 HOST_Q = {}
-HOST_Q[QUALITIES.LOW] = ['youwatch.org', 'allmyvideos.net', 'played.to', 'gorillavid.in']
-HOST_Q[QUALITIES.MEDIUM] = ['primeshare.tv', 'www.exashare.com', 'bestreams.net', 'www.flashx.tv', 'vidto.me',
-                          'vodlocker.com', 'www.thevideo.me', 'vidzi.tv', 'vidbull.com', 'realvid.net', 'www.nosvideo.com', 'daclips.in']
-HOST_Q[QUALITIES.HIGH] = ['vidspot.net', 'mrfile.me', 'www.divxstage.eu', 'www.divxstage.to']
-HOST_Q[QUALITIES.HD] = ['thefile.me', 'sharesix.com', 'mightyupload.com', 'filenuke.com', 'hugefiles.net', '180upload.com',
-                      'vidxden', 'billionuploads.com', 'www.movshare.net', 'www.nowvideo.sx']
+HOST_Q[QUALITIES.LOW] = ['youwatch', 'allmyvideos', 'played.to', 'gorillavid']
+HOST_Q[QUALITIES.MEDIUM] = ['primeshare', 'exashare', 'bestreams', 'flashx', 'vidto', 'vodlocker', 'thevideo', 'vidzi', 'vidbull', 'realvid', 'nosvideo', 'daclips']
+HOST_Q[QUALITIES.HIGH] = ['vidspot', 'mrfile', 'divxstage']
+HOST_Q[QUALITIES.HD] = ['thefile', 'sharesix', 'mightyupload', 'filenuke', 'hugefiles', '180upload', 'vidxden', 'billionuploads', 'movshare', 'nowvideo']
 
 Q_ORDER = {QUALITIES.LOW: 1, QUALITIES.MEDIUM: 2, QUALITIES.HIGH: 3, QUALITIES.HD: 4}
 
