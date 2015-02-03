@@ -1,3 +1,9 @@
+[B]Version 0.0.58[/B]
+- Extend host quality logic to other scrapers
+- Code Cleanup (PEP8)
+- remove alluc.to scraper
+- Add tv-release.net scraper
+
 [B]Version 0.0.57[/B]
 - Fix movietv.to scraper
 - Fix myvideolinks.eu scraper
