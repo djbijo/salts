@@ -29,7 +29,7 @@ from salts_lib.constants import QUALITIES
 from salts_lib.constants import Q_ORDER
 
 BASE_URL = 'http://tv-release.net'
-QUALITY_MAP = {'MOVIES-XVID': QUALITIES.HIGH, 'TV-XVID': QUALITIES.HIGH, 'TV-MP4': QUALITIES.HIGH,
+QUALITY_MAP = {'MOVIES-XVID': QUALITIES.MEDIUM, 'TV-XVID': QUALITIES.HIGH, 'TV-MP4': QUALITIES.HIGH,
                'TV-480P': QUALITIES.HIGH, 'MOVIES-480P': QUALITIES.HIGH, 'TV-720P': QUALITIES.HD, 'MOVIES-720P': QUALITIES.HD}
 
 class TVReleaseNet_Scraper(scraper.Scraper):
