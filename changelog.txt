@@ -1,3 +1,6 @@
+[B]Version 0.0.59[/B]
+- Fix wso and wmo regexes
+
 [B]Version 0.0.58[/B]
 - Extend host quality logic to other scrapers
 - Code Cleanup (PEP8)
