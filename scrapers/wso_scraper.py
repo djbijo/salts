@@ -63,9 +63,10 @@ class WSO_Scraper(scraper.Scraper):
             url = urlparse.urljoin(self.base_url, source_url)
             html = self._http_get(url, cache_limit=.5)
 
-            pattern = 'class="[^"]+tdhost".*?href="([^"]+)">([^<]+).*?class="[^"]*link_views"\s+id="(\d+)'
+            pattern = 'class="[^"]*tdhost".*?href="([^"]+)">([^<]+).*?class="[^"]*link_views"\s+id="([^"]*)'
             for match in re.finditer(pattern, html, re.DOTALL):
                 stream_url, host, views = match.groups()
+                if not views: views = None
                 hoster = {'multi-part': False, 'host': host.lower(), 'class': self, 'url': stream_url, 'quality': self._get_quality(video, host, QUALITIES.HIGH), 'views': views, 'rating': None, 'direct': False}
                 hosters.append(hoster)
         return hosters

@@ -69,11 +69,10 @@ class WMO_Scraper(scraper.Scraper):
             else:
                 quality = None
 
-            pattern = 'id="hovered".*?href="([^"]+)">([^<]+).*?class="[^"]+link_views[^>]+>([\d\.]+)(k?)'
+            pattern = 'class="[^"]*tdhost".*?href="([^"]+)">([^<]+).*?class="[^"]*link_views"\s+id="([^"]*)'
             for match in re.finditer(pattern, html, re.DOTALL):
-                stream_url, host, views, k = match.groups()
-                if k:
-                    views = float(views) * 1000
+                stream_url, host, views = match.groups()
+                if not views: views = None
 
                 hoster = {'multi-part': False, 'host': host.lower(), 'class': self, 'url': stream_url, 'quality': self._get_quality(video, host, quality), 'views': int(views), 'rating': None, 'direct': False}
                 hosters.append(hoster)
