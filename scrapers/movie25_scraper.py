@@ -49,6 +49,10 @@ class Movie25_Scraper(scraper.Scraper):
         match = re.search('href=\'([^\']*)\'"\s+value="Click Here to Play"', html, re.DOTALL | re.I)
         if match:
             return match.group(1)
+        else:
+            match = re.search('<IFRAME SRC="(?:tz\.php\?url=)?([^"]+)', html, re.DOTALL)
+            if match:
+                return match.group(1)
 
     def format_source_label(self, item):
         return '[%s] %s' % (item['quality'], item['host'])
@@ -61,9 +65,9 @@ class Movie25_Scraper(scraper.Scraper):
             html = self._http_get(url, cache_limit=.5)
 
             quality = None
-            match = re.search('Links - Quality\s*([^ ]*)\s*</h1>', html, re.DOTALL | re.I)
+            match = re.search('Links\s+-\s+Quality\s*([^<]*)</h1>', html, re.DOTALL | re.I)
             if match:
-                quality = QUALITY_MAP.get(match.group(1).upper())
+                quality = QUALITY_MAP.get(match.group(1).strip().upper())
 
             pattern = 'li class="link_name">\s*(.*?)\s*</li>.*?href="([^"]+)'
             for match in re.finditer(pattern, html, re.DOTALL):
@@ -80,7 +84,7 @@ class Movie25_Scraper(scraper.Scraper):
         search_url += urllib.quote_plus('%s %s' % (title, year))
         search_url += '&submit='
         html = self._http_get(search_url, cache_limit=.25)
-        pattern = 'class="movie_about_text">.*?href="([^"]+).*?>\s+(.*?)\s*\(?(\d{4})?\)?\s+</a></h1>'
+        pattern = 'class="movie_about">.*?href="([^"]+).*?>\s+(.*?)\s*\(?(\d{4})?\)?\s+</a></h1>'
         results = []
         for match in re.finditer(pattern, html, re.DOTALL):
             url, title, year = match.groups('')
