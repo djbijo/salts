@@ -102,13 +102,17 @@ class MyVidLinks_Scraper(scraper.Scraper):
     def __fix_base_url(self, video_type):
         html = self._http_get(self.base_url, cache_limit=1)
         if video_type == VIDEO_TYPES.MOVIE:
-            pattern = 'href="([^"]+)">MOVIES<'
+            pattern = '<h1>\s*MOVIES.*?(http[^<]+)'
+            default_url = 'http://movies.myvideolinks.eu'
         else:
-            pattern = 'href="([^"]+)">TV SHOWS<'
+            pattern = '<h1>\s*TV SHOWS.*?(http[^<]+)'
+            default_url = 'http://tv.myvideolinks.eu'
 
         match = re.search(pattern, html)
         if match:
             self.base_url = match.group(1)
+        else:
+            self.base_url = default_url
 
     def get_url(self, video):
         url = None
