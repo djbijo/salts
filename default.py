@@ -25,6 +25,7 @@ import xbmcgui
 import xbmc
 import xbmcvfs
 import urllib2
+import urlresolver
 from addon.common.addon import Addon
 from salts_lib.db_utils import DB_Connection
 from salts_lib.url_dispatcher import URL_Dispatcher
@@ -48,8 +49,6 @@ list_size = int(_SALTS.get_setting('list_size'))
 trakt_api = Trakt_API(username, password, TOKEN, use_https, list_size, trakt_timeout)
 url_dispatcher = URL_Dispatcher()
 db_connection = DB_Connection()
-
-global urlresolver
 
 @url_dispatcher.register(MODES.MAIN)
 def main_menu():
@@ -119,8 +118,6 @@ def delete_url(url):
 
 @url_dispatcher.register(MODES.RES_SETTINGS)
 def resolver_settings():
-    global urlresolver
-    import urlresolver
     urlresolver.display_settings()
 
 @url_dispatcher.register(MODES.ADDON_SETTINGS)
@@ -796,9 +793,6 @@ def get_sources(mode, video_type, title, year, slug, season='', episode='', ep_t
         SORT_KEYS['source'] = utils.make_source_sort_key()
         hosters.sort(key=utils.get_sort_key)
 
-        global urlresolver
-        import urlresolver
-
         hosters = filter_unusable_hosters(hosters)
 
         if not hosters:
@@ -872,9 +866,6 @@ def download_subtitles(language, title, year, season, episode):
         return srt_scraper.download_subtitle(subs[index]['url'])
 
 def play_source(mode, hoster_url, video_type, slug, season='', episode=''):
-    global urlresolver
-    import urlresolver
-
     if hoster_url is None:
         return False
 
