@@ -53,7 +53,7 @@ class TwoMovies_Scraper(scraper.Scraper):
             return match.group(1)
 
     def format_source_label(self, item):
-        return '[%s] %s (%s/100)' % (item['quality'], item['host'], item['rating'])
+        return '[%s] %s' % (item['quality'], item['host'])
 
     def get_sources(self, video):
         sources = []
@@ -65,7 +65,7 @@ class TwoMovies_Scraper(scraper.Scraper):
             pattern = 'class="playDiv3".*?href="([^"]+).*?>(.*?)</a>'
             for match in re.finditer(pattern, html, re.DOTALL | re.I):
                 url, host = match.groups()
-                source = {'multi-part': False, 'url': url.replace(self.base_url, ''), 'host': host, 'class': self, 'quality': self._get_quality(video, host), 'rating': None, 'views': None, 'direct': False}
+                source = {'multi-part': False, 'url': url.replace(self.base_url, ''), 'host': host, 'class': self, 'quality': self._get_quality(video, host, QUALITIES.HIGH), 'rating': None, 'views': None, 'direct': False}
                 sources.append(source)
         return sources
 
@@ -74,8 +74,8 @@ class TwoMovies_Scraper(scraper.Scraper):
 
     def search(self, video_type, title, year):
         search_url = urlparse.urljoin(self.base_url, '/search/?criteria=title&search_query=')
-        search_url += urllib.quote_plus(title)
-        html = self._http_get(search_url, cache_limit=.25)
+        search_url += urllib.quote_plus(title.lower())
+        html = self._http_get(search_url, cache_limit=.5)
         results = []
 
         # filter the html down to only tvshow or movie results
