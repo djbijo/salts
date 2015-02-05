@@ -36,7 +36,7 @@ class TraktError(Exception):
 class TransientTraktError(Exception):
     pass
 
-BASE_URL = 'api.trakt.tv'
+BASE_URL = 'api-v2launch.trakt.tv'
 V2_API_KEY = 'eb41e95243d8c95152ed72a1fc0394c93cb785cb33aed609fdde1a07454584b4'
 RESULTS_LIMIT = 10
 
