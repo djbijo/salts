@@ -344,6 +344,8 @@ class DB_Connection():
 
     def reset_db(self):
         if self.db_type == DB_TYPES.SQLITE:
+            try: self.db.close()
+            except: pass
             os.remove(self.db_path)
             self.db = None
             self.__connect_to_db()
