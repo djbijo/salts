@@ -84,7 +84,7 @@ class WSO_Scraper(scraper.Scraper):
                 else:
                     hoster['rating'] = 100
 
-                print '%s, %s' % (hoster['rating'], hoster['age'])
+                #print '%s, %s' % (hoster['rating'], hoster['age'])
 
         return hosters
 
@@ -115,7 +115,7 @@ class WSO_Scraper(scraper.Scraper):
                 num = 0
                 mult = 0
             age = now - (num * mult)
-        print '%s, %s, %s, %s' % (num, unit, mult, age)
+        #print '%s, %s, %s, %s' % (num, unit, mult, age)
         return age
 
     def get_url(self, video):
