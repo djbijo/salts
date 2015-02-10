@@ -25,6 +25,7 @@ from salts_lib.db_utils import DB_Connection
 from salts_lib.constants import VIDEO_TYPES
 from salts_lib.constants import QUALITIES
 from salts_lib.constants import USER_AGENT
+from salts_lib.constants import MONTHS
 
 BASE_URL = 'http://www.vidics.ch'
 
@@ -100,7 +101,10 @@ class Vidics_Scraper(scraper.Scraper):
     def _get_episode_url(self, show_url, video):
         episode_pattern = 'href="(/Serie/[^-]+-Season-%s-Episode-%s)' % (video.season, video.episode)
         title_pattern = 'class="episode"\s+href="([^"]+).*?class="episode_title">\s*-\s*(.*?) \('
-        return super(Vidics_Scraper, self)._default_get_episode_url(show_url, video, episode_pattern, title_pattern)
+        airdate_pattern = ''
+        if video.ep_airdate is not None:
+            airdate_pattern = 'class="episode"\s+href="([^"]+)(?:[^>]+>){2}[^<]+\s+\(%d %s %02d\)' % (video.ep_airdate.year, MONTHS[video.ep_airdate.month - 1], video.ep_airdate.day)
+        return super(Vidics_Scraper, self)._default_get_episode_url(show_url, video, episode_pattern, title_pattern, airdate_pattern)
 
     def _http_get(self, url, data=None, cache_limit=8):
         return super(Vidics_Scraper, self)._cached_http_get(url, self.base_url, self.timeout, data=data, cache_limit=cache_limit)
