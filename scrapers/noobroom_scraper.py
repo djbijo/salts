@@ -113,7 +113,8 @@ class NoobRoom_Scraper(scraper.Scraper):
         title_pattern = "\d+x\d+\s*-\s*.*?href='([^']+)'>([^<]+)"
         airdate_pattern = ''
         if video.ep_airdate is not None:
-            airdate_pattern = "href='([^']+)(?:[^>]+>){3}\s*-\s*\(Original Air Date: %s" % (video.ep_airdate.strftime('%d-%m-%Y'))
+            air_date = video.ep_airdate
+            airdate_pattern = "href='([^']+)(?:[^>]+>){3}\s*-\s*\(Original Air Date: %d-%d-%d" % (air_date.day, air_date.month, air_date.year)
         return super(NoobRoom_Scraper, self)._default_get_episode_url(show_url, video, episode_pattern, title_pattern, airdate_pattern)
 
     def search(self, video_type, title, year):
