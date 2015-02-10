@@ -129,5 +129,5 @@ while not xbmc.abortRequested:
     else:
         errors = 0
 
-    xbmc.sleep(60 * 1000)
+    xbmc.sleep(1000)
 log_utils.log('Service: shutting down...')
