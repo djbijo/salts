@@ -94,6 +94,7 @@
 		<setting id="excl_list" type="text" label="Source Exclusion List" default=""/>
 		<setting id="Episode_quality" type="enum" label="Allowed TV Show Quality" values="HD & SD|HD Only|SD Only" default="0" visible="true"/>
 		<setting id="Movie_quality" type="enum" label="Allowed Movie Quality" values="HD & SD|HD Only|SD Only" default="0" visible="true"/>
+        <setting id="airdate-fallback" type="bool" label="Match episode air date when season & episode fails" default="true"/>
 		<setting id="title-fallback" type="bool" label="Match episode title when season & episode fails" default="true"/>
 	    <setting id="last_check" type="number" default="0" visible="false"/>
 		<setting id="auto-disable" type="enum" label="Automatically disable slow scrapers" values="Off|Prompt|On" default="1"/>

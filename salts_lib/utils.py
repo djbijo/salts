@@ -197,14 +197,8 @@ def make_info(item, show=None, people=None):
     if 'votes' in item: info['votes'] = item['votes']
     if 'released' in item: info['premiered'] = item['released']
     if 'trailer' in item and item['trailer']: info['trailer'] = make_trailer(item['trailer'])
+    if 'first_aired' in item: info['aired'] = info['premiered'] = make_air_date(item['first_aired'])
     info.update(make_ids(item))
-
-    if 'first_aired' in item:
-        utc_air_time = iso_2_utc(item['first_aired'])
-        try: info['aired'] = info['premiered'] = time.strftime('%Y-%m-%d', time.localtime(utc_air_time))
-        except ValueError:  # windows throws a ValueError on negative values to localtime
-            d = datetime.datetime.fromtimestamp(0) + datetime.timedelta(seconds=utc_air_time)
-            info['aired'] = info['premiered'] = d.strftime('%Y-%m-%d')
 
     if 'aired_episodes' in item:
         info['episode'] = info['TotalEpisodes'] = item['aired_episodes']
@@ -251,6 +245,14 @@ def make_people(item):
         people['writer'] = ', '.join(writers)
 
     return people
+
+def make_air_date(first_aired):
+    utc_air_time = iso_2_utc(first_aired)
+    try: air_date = time.strftime('%Y-%m-%d', time.localtime(utc_air_time))
+    except ValueError:  # windows throws a ValueError on negative values to localtime
+        d = datetime.datetime.fromtimestamp(0) + datetime.timedelta(seconds=utc_air_time)
+        air_date = d.strftime('%Y-%m-%d')
+    return air_date
 
 def get_section_params(section):
     section_params = {}

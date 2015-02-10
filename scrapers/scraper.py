@@ -143,34 +143,6 @@ class Scraper(object):
         """
         raise NotImplementedError
 
-    def _default_get_url(self, video):
-        temp_video_type = video.video_type
-        if video.video_type == VIDEO_TYPES.EPISODE: temp_video_type = VIDEO_TYPES.TVSHOW
-        url = None
-
-        result = self.db_connection.get_related_url(temp_video_type, video.title, video.year, self.get_name())
-        if result:
-            url = result[0][0]
-            log_utils.log('Got local related url: |%s|%s|%s|%s|%s|' % (temp_video_type, video.title, video.year, self.get_name(), url))
-        else:
-            results = self.search(temp_video_type, video.title, video.year)
-            if results:
-                url = results[0]['url']
-                self.db_connection.set_related_url(temp_video_type, video.title, video.year, self.get_name(), url)
-
-        if url and video.video_type == VIDEO_TYPES.EPISODE:
-            result = self.db_connection.get_related_url(VIDEO_TYPES.EPISODE, video.title, video.year, self.get_name(), video.season, video.episode)
-            if result:
-                url = result[0][0]
-                log_utils.log('Got local related url: |%s|%s|%s|' % (video, self.get_name(), url))
-            else:
-                show_url = url
-                url = self._get_episode_url(show_url, video)
-                if url:
-                    self.db_connection.set_related_url(VIDEO_TYPES.EPISODE, video.title, video.year, self.get_name(), url, video.season, video.episode)
-
-        return url
-
     @abc.abstractmethod
     def search(self, video_type, title, year):
         """
@@ -210,6 +182,34 @@ class Scraper(object):
             if 'sub_check' in settings[i]:
                 settings[i] = settings[i].replace('default="true"', 'default="false"')
         return settings
+
+    def _default_get_url(self, video):
+        temp_video_type = video.video_type
+        if video.video_type == VIDEO_TYPES.EPISODE: temp_video_type = VIDEO_TYPES.TVSHOW
+        url = None
+
+        result = self.db_connection.get_related_url(temp_video_type, video.title, video.year, self.get_name())
+        if result:
+            url = result[0][0]
+            log_utils.log('Got local related url: |%s|%s|%s|%s|%s|' % (temp_video_type, video.title, video.year, self.get_name(), url))
+        else:
+            results = self.search(temp_video_type, video.title, video.year)
+            if results:
+                url = results[0]['url']
+                self.db_connection.set_related_url(temp_video_type, video.title, video.year, self.get_name(), url)
+
+        if url and video.video_type == VIDEO_TYPES.EPISODE:
+            result = self.db_connection.get_related_url(VIDEO_TYPES.EPISODE, video.title, video.year, self.get_name(), video.season, video.episode)
+            if result:
+                url = result[0][0]
+                log_utils.log('Got local related url: |%s|%s|%s|' % (video, self.get_name(), url))
+            else:
+                show_url = url
+                url = self._get_episode_url(show_url, video)
+                if url:
+                    self.db_connection.set_related_url(VIDEO_TYPES.EPISODE, video.title, video.year, self.get_name(), url, video.season, video.episode)
+
+        return url
 
     def _cached_http_get(self, url, base_url, timeout, cookies=None, data=None, headers=None, cache_limit=8):
         if cookies is None: cookies = {}
@@ -283,7 +283,7 @@ class Scraper(object):
         wdlg.close()
         return {'recaptcha_challenge_field': match.group(1), 'recaptcha_response_field': solution}
 
-    def _default_get_episode_url(self, show_url, video, episode_pattern, title_pattern=''):
+    def _default_get_episode_url(self, show_url, video, episode_pattern, title_pattern='', airdate_pattern=''):
         log_utils.log('Default Episode Url: |%s|%s|%s|' % (self.base_url, show_url, str(video).decode('utf-8', 'replace')), xbmc.LOGDEBUG)
         url = urlparse.urljoin(self.base_url, show_url)
         html = self._http_get(url, cache_limit=2)
@@ -292,9 +292,18 @@ class Scraper(object):
 
             if not force_title:
                 match = re.search(episode_pattern, html, re.DOTALL)
+                match = False
                 if match:
                     url = match.group(1)
                     return url.replace(self.base_url, '')
+
+                print video.ep_airdate
+                if xbmcaddon.Addon().getSetting('airdate-fallback') == 'true' and airdate_pattern and video.ep_airdate is not None:
+                    pattern = airdate_pattern % (video.ep_airdate.year, video.ep_airdate.month, video.ep_airdate.day)
+                    match = re.search(pattern, html, re.DOTALL)
+                    if match:
+                        url = match.group(1)
+                        return url.replace(self.base_url, '')
             else:
                 log_utils.log('Skipping S&E matching as title search is forced on: %s' % (video.slug), xbmc.LOGDEBUG)
 
