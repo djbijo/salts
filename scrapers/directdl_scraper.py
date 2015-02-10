@@ -95,6 +95,10 @@ class DirectDownload_Scraper(scraper.Scraper):
         else:
             search_title = '%s S%02dE%02d' % (video.title, int(video.season), int(video.episode))
             results = self.search(video.video_type, search_title, '')
+            if not results and video.ep_airdate is not None:
+                search_title = '%s %s' % (video.title, video.ep_airdate.strftime('%Y.%m.%d'))
+                results = self.search(video.video_type, search_title, '')
+
             best_q_index = -1
             for result in results:
                 if Q_DICT[result['quality']] > best_q_index:
