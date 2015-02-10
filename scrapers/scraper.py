@@ -298,7 +298,7 @@ class Scraper(object):
                     return url.replace(self.base_url, '')
 
                 if xbmcaddon.Addon().getSetting('airdate-fallback') == 'true' and airdate_pattern:
-                    print airdate_pattern
+                    log_utils.log('Air Date Pattern: %s' % (airdate_pattern), xbmc.LOGDEBUG)
                     match = re.search(airdate_pattern, html, re.DOTALL | re.I)
                     if match:
                         url = match.group(1)
