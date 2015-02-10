@@ -30,7 +30,7 @@ from addon.common.addon import Addon
 from salts_lib.db_utils import DB_Connection
 from salts_lib.url_dispatcher import URL_Dispatcher
 from salts_lib.srt_scraper import SRT_Scraper
-from salts_lib.trakt_api import Trakt_API, TransientTraktError
+from salts_lib.trakt_api import Trakt_API, TransientTraktError, TraktNotFoundError
 from salts_lib import utils
 from salts_lib import log_utils
 from salts_lib.constants import *
@@ -486,7 +486,15 @@ def show_list(section, slug, username=None):
     if slug == utils.WATCHLIST_SLUG:
         items = trakt_api.show_watchlist(section)
     else:
-        items = trakt_api.show_list(slug, section, username)
+        try:
+            items = trakt_api.show_list(slug, section, username)
+        except TraktNotFoundError:
+            msg = 'List Does Not Exist: %s' % (slug)
+            builtin = 'XBMC.Notification(%s,%s, 5000, %s)'
+            xbmc.executebuiltin(builtin % (_SALTS.get_name(), msg, ICON_PATH))
+            log_utils.log(msg, xbmc.LOGWARNING)
+            return
+
     make_dir_from_list(section, items, slug)
 
 @url_dispatcher.register(MODES.SHOW_WATCHLIST, ['section'])
@@ -1205,7 +1213,7 @@ def add_to_list(section, id_type, show_id, slug=None):
     add_many_to_list(section, {id_type: show_id}, slug)
     builtin = "XBMC.Notification(%s,Item Added to List, 2000, %s)" % (_SALTS.get_name(), ICON_PATH)
     xbmc.executebuiltin(builtin)
-    xbmc.executebuiltin("XBMC.Container.Refresh")
+    #xbmc.executebuiltin("XBMC.Container.Refresh")
 
 def add_many_to_list(section, items, slug=None):
     if not slug: slug = utils.choose_list()

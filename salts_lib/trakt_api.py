@@ -33,6 +33,9 @@ from constants import SECTIONS
 class TraktError(Exception):
     pass
 
+class TraktNotFoundError(Exception):
+    pass
+
 class TransientTraktError(Exception):
     pass
 
@@ -346,6 +349,8 @@ class Trakt_API():
                                 self.token = self.login()
                                 xbmcaddon.Addon('plugin.video.salts').setSetting('trakt_token', self.token)
                                 login_retry = True
+                        elif e.code == 404:
+                            raise TraktNotFoundError()
                         else:
                             raise
                     elif isinstance(e.reason, socket.timeout) or isinstance(e.reason, ssl.SSLError):
