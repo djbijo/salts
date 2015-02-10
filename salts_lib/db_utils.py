@@ -50,7 +50,7 @@ class DB_Connection():
             and self.password is not None and self.dbname is not None:
                 import mysql.connector as db_lib
                 from mysql.connector import OperationalError as OperationalError
-                log_utils.log('Loading MySQL as DB engine')
+                log_utils.log('Loading MySQL as DB engine', xbmc.LOGDEBUG)
                 self.db_type = DB_TYPES.MYSQL
             else:
                 log_utils.log('MySQL is enabled but not setup correctly', xbmc.LOGERROR)
@@ -58,7 +58,7 @@ class DB_Connection():
         else:
             from sqlite3 import dbapi2 as db_lib
             from sqlite3 import OperationalError as OperationalError
-            log_utils.log('Loading sqlite3 as DB engine')
+            log_utils.log('Loading sqlite3 as DB engine', xbmc.LOGDEBUG)
             self.db_type = DB_TYPES.SQLITE
             db_dir = xbmc.translatePath("special://database")
             self.db_path = os.path.join(db_dir, 'saltscache.db')
