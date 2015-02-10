@@ -292,7 +292,6 @@ class Scraper(object):
 
             if not force_title:
                 match = re.search(episode_pattern, html, re.DOTALL)
-                match = False
                 if match:
                     url = match.group(1)
                     return url.replace(self.base_url, '')
