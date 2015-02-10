@@ -297,9 +297,9 @@ class Scraper(object):
                     url = match.group(1)
                     return url.replace(self.base_url, '')
 
-                print video.ep_airdate
                 if xbmcaddon.Addon().getSetting('airdate-fallback') == 'true' and airdate_pattern:
-                    match = re.search(airdate_pattern, html, re.DOTALL)
+                    print airdate_pattern
+                    match = re.search(airdate_pattern, html, re.DOTALL | re.I)
                     if match:
                         url = match.group(1)
                         return url.replace(self.base_url, '')
