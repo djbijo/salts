@@ -147,13 +147,15 @@ class WSO_Scraper(scraper.Scraper):
 
     def _get_episode_url(self, show_url, video):
         episode_pattern = 'class="PostHeader">\s*<a\s+href="([^"]+)[^>]+title="[^"]+[Ss]%02d[Ee]%02d[ "]' % (int(video.season), int(video.episode))
-        print episode_pattern
         title_pattern = ''
+        airdate_pattern = ''
+        if video.ep_airdate is not None:
+            airdate_pattern = 'class="PostHeader">\s*<a\s+href="([^"]+)[^>]+title="[^"]+%s[ \)"]' % (video.ep_airdate.strftime('%Y %m %d'))
+
         for page in xrange(1, self.max_pages + 1):
             url = show_url
             if page > 1: url += '%s/page/%s' % (show_url, page)
-            print url
-            ep_url = super(WSO_Scraper, self)._default_get_episode_url(url, video, episode_pattern, title_pattern)
+            ep_url = super(WSO_Scraper, self)._default_get_episode_url(url, video, episode_pattern, title_pattern, airdate_pattern)
             if ep_url is not None:
                 return ep_url
 
