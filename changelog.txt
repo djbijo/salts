@@ -1,3 +1,13 @@
+[B]Version 0.0.60[/B]
+- Fix myvideolinks.eu scraper
+- Fix movie25 scraper
+- Fix twomovies scraper
+- Use new trakt api host
+- Have service sleep for 60 seconds, rather than 1
+- Match episodes on airdate is SXXEXX match fails (where available)
+- Improve clickplay.to matching
+- Minor bug fixes
+
 [B]Version 0.0.59[/B]
 - Fix wso and wmo regexes
 
