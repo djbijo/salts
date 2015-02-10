@@ -111,7 +111,10 @@ class NoobRoom_Scraper(scraper.Scraper):
     def _get_episode_url(self, show_url, video):
         episode_pattern = "%sx%02d\s*-\s*.*?href='([^']+)" % (video.season, int(video.episode))
         title_pattern = "\d+x\d+\s*-\s*.*?href='([^']+)'>([^<]+)"
-        return super(NoobRoom_Scraper, self)._default_get_episode_url(show_url, video, episode_pattern, title_pattern)
+        airdate_pattern = ''
+        if video.ep_airdate is not None:
+            airdate_pattern = "href='([^']+)(?:[^>]+>){3}\s*-\s*\(Original Air Date: %s" % (video.ep_airdate.strftime('%d-%m-%Y'))
+        return super(NoobRoom_Scraper, self)._default_get_episode_url(show_url, video, episode_pattern, title_pattern, airdate_pattern)
 
     def search(self, video_type, title, year):
         if not self.include_paid and video_type != VIDEO_TYPES.MOVIE: return []
