@@ -101,6 +101,7 @@ class ClickPlay_Scraper(scraper.Scraper):
 
         results = []
         pattern = 'href="([^"]+)"\s+class="article.*?class="article-title">([^<]+)'
+        norm_title = self._normalize_title(title)
         for match in re.finditer(pattern, html, re.DOTALL):
             url, match_title_year = match.groups()
             r = re.search('(.*?)\s+\((\d{4})\)', match_title_year)
@@ -110,7 +111,7 @@ class ClickPlay_Scraper(scraper.Scraper):
                 match_title = match_title_year
                 match_year = ''
 
-            if not year or not match_year or year == match_year:
+            if norm_title in self._normalize_title(match_title) and (not year or not match_year or year == match_year):
                 result = {'url': url.replace(self.base_url, ''), 'title': match_title, 'year': match_year}
                 results.append(result)
 
