@@ -313,7 +313,7 @@ class Scraper(object):
             else:
                 log_utils.log('Skipping S&E matching as title search is forced on: %s' % (video.slug), xbmc.LOGDEBUG)
 
-            if xbmcaddon.Addon().getSetting('title-fallback') == 'true' and video.ep_title and title_pattern:
+            if (force_title or xbmcaddon.Addon().getSetting('title-fallback') == 'true') and video.ep_title and title_pattern:
                 norm_title = self._normalize_title(video.ep_title)
                 for match in re.finditer(title_pattern, html, re.DOTALL | re.I):
                     url, title = match.groups()
