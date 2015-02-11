@@ -83,14 +83,20 @@ class OneClickWatch_Scraper(scraper.Scraper):
         else:
             select = int(xbmcaddon.Addon().getSetting('%s-select' % (self.get_name())))
             if video.video_type == VIDEO_TYPES.EPISODE:
+                temp_title = re.sub('[^A-Za-z0-9 ]', '', video.title)
                 if not self._force_title(video):
-                    search_title = '%s S%02dE%02d' % (video.title, int(video.season), int(video.episode))
+                    search_title = '%s S%02dE%02d' % (temp_title, int(video.season), int(video.episode))
+                    fallback_search = '%s %s' % (temp_title, video.ep_airdate.strftime('%Y.%m.%d'))
                 else:
                     if not video.ep_title: return None
-                    search_title = '%s %s' % (video.title, video.ep_title)
+                    search_title = '%s %s' % (temp_title, video.ep_title)
+                    fallback_search = ''
             else:
                 search_title = '%s %s' % (video.title, video.year)
+
             results = self.search(video.video_type, search_title, video.year)
+            if not results and fallback_search:
+                results = self.search(video.video_type, fallback_search, video.year)
             if results:
                 if select == 0:
                     best_result = results[0]
@@ -151,6 +157,11 @@ class OneClickWatch_Scraper(scraper.Scraper):
                 if match:
                     title, extra_title = match.groups()
                     title = '%s [%s]' % (title, extra_title)
+                else:
+                    match = re.search('(.*?)\s*\d{4}\.\d{2}\.\d{2}\s*(.*)', title)
+                    if match:
+                        title, extra_title = match.groups()
+                        title = '%s [%s]' % (title, extra_title)
 
             if not year or not match_year or year == match_year:
                 result = {'url': url.replace(self.base_url, ''), 'title': title, 'year': match_year}
