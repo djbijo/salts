@@ -23,7 +23,6 @@ import xbmcaddon
 from salts_lib.db_utils import DB_Connection
 from salts_lib.constants import VIDEO_TYPES
 from salts_lib.constants import QUALITIES
-from salts_lib.constants import MONTHS
 
 QUALITY_MAP = {'HD': QUALITIES.HIGH, 'DVD': QUALITIES.HIGH, 'TV': QUALITIES.HIGH, 'LQ DVD': QUALITIES.MEDIUM, 'CAM': QUALITIES.LOW}
 BASE_URL = 'http://www.solarmovie.is'
@@ -103,9 +102,7 @@ class Solar_Scraper(scraper.Scraper):
     def _get_episode_url(self, show_url, video):
         episode_pattern = 'class="epnomber".*?href="([^"]+/season-%s/episode-%s/)' % (video.season, video.episode)
         title_pattern = 'class="epname".*?href="([^"]+)"\s+title="([^"]+)'
-        airdate_pattern = ''
-        if video.ep_airdate is not None:
-            airdate_pattern = '<em>%s\s+%d,\s+%d.*?class="epnomber".*?href="([^"]+)' % (MONTHS[video.ep_airdate.month - 1], video.ep_airdate.day, video.ep_airdate.year)
+        airdate_pattern = '<em>{month_name}\s+{day},\s+{year}.*?class="epnomber".*?href="([^"]+)'
         return super(Solar_Scraper, self)._default_get_episode_url(show_url, video, episode_pattern, title_pattern, airdate_pattern)
 
     def _http_get(self, url, cache_limit=8):
