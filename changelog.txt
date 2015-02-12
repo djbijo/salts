@@ -1,4 +1,7 @@
-[B]Version 0.0.62[/B]
+[B]Version 0.0.64[/B]
+- Fix hdmz scraper
+
+[B]Version 0.0.63[/B]
 - Fix script error in iwatchonline
 
 [B]Version 0.0.62[/B]
