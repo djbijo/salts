@@ -88,7 +88,7 @@ class TVReleaseNet_Scraper(scraper.Scraper):
                 temp_title = re.sub('[^A-Za-z0-9 ]', '', video.title)
                 if not self._force_title(video):
                     search_title = '%s S%02dE%02d' % (temp_title, int(video.season), int(video.episode))
-                    fallback_search = '%s %s' % (temp_title, video.ep_airdate.strftime('%Y.%m.%d'))
+                    fallback_search = '%s %s' % (temp_title, video.ep_airdate.strftime('%Y %m %d'))
                 else:
                     if not video.ep_title: return None
                     search_title = '%s %s' % (temp_title, video.ep_title)
@@ -110,7 +110,7 @@ class TVReleaseNet_Scraper(scraper.Scraper):
                         if match:
                             q_str = match.group(1)
                             quality = self._blog_get_quality(video, q_str, '')
-                            # print 'result: |%s|%s|%s|%s|' % (result, q_str, quality, Q_ORDER[quality])
+                            #print 'result: |%s|%s|%s|%s|' % (result, q_str, quality, Q_ORDER[quality])
                             if Q_ORDER[quality] >= best_qorder:
                                 if Q_ORDER[quality] > best_qorder or (quality == QUALITIES.HD and '1080' in q_str and '1080' not in best_qstr):
                                     # print 'Setting best as: |%s|%s|%s|%s|' % (result, q_str, quality, Q_ORDER[quality])
@@ -162,8 +162,13 @@ class TVReleaseNet_Scraper(scraper.Scraper):
                 match_year = ''
                 match = re.search('(.*?)\s*S\d+E\d+', title)
                 if match:
-                    title = match.groups()
-                    title = '%s [%s]' % (title, quality)
+                    title = match.group(1)
+                else:
+                    match = re.search('(.*?)\s*\d{4}\s\d{2}\s\d{2}', title)
+                    if match:
+                        title = match.group(1)
+                    
+                title = '%s [%s]' % (title, quality)
 
             if not year or not match_year or year == match_year:
                 result = {'url': url.replace(self.base_url, ''), 'title': title, 'year': match_year}
