@@ -1,4 +1,7 @@
 [B]Version 0.0.62[/B]
+- Fix script error in iwatchonline
+
+[B]Version 0.0.62[/B]
 - Fix script error on android & iphone
 
 [B]Version 0.0.61[/B]
