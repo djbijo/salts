@@ -1,3 +1,6 @@
+[B]Version 0.0.62[/B]
+- Fix script error on android & iphone
+
 [B]Version 0.0.61[/B]
 - Improve air-date algorithm
 - Add air-date support to oneclickwatch and tv-release.net
