@@ -388,6 +388,12 @@
          <setting id="Putlocker_try" type="number" default="0" visible="false"/>
          <setting id="Putlocker_fail" type="number" default="0" visible="false"/>
          <setting id="Putlocker_check" type="number" default="0" visible="false"/>
+         <setting id="ch131-enable" type="bool" label="ch131 Enabled" default="true" visible="true"/>
+         <setting id="ch131-base_url" type="text" label="     Base Url" default="http://www.ch131.me" visible="eq(-1,true)"/>
+         <setting id="ch131-sub_check" type="bool" label="     Include in Page Existence checks?" default="true" visible="eq(-2,true)"/>
+         <setting id="ch131_try" type="number" default="0" visible="false"/>
+         <setting id="ch131_fail" type="number" default="0" visible="false"/>
+         <setting id="ch131_check" type="number" default="0" visible="false"/>
     </category>
 	
     <category label="Subtitles">
