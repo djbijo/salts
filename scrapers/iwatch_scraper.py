@@ -66,7 +66,7 @@ class IWatchOnline_Scraper(scraper.Scraper):
             if match:
                 fragment = match.group(1)
                 if video.video_type == VIDEO_TYPES.MOVIE:
-                    pattern = 'href="([^"]+/play/[^"]+).*?/>\s+\.?([^\s]+)\s+.*?<td>.*?</td>\s*<td>(.*?)</td>\s*<td>(.*?)</td>'
+                    pattern = 'href="([^"]+/play/[^"]+).*?/>\s+\.?([^\s]+)\s+.*?(?:<td>.*?</td>\s*){2}<td>(.*?)</td>\s*<td>(.*?)</td>'
                 else:
                     pattern = 'href="([^"]+/play/[^"]+).*?/>\s+\.?([^\s]+)\s+.*?(<span class="linkdate">.*?)</td>\s*<td>(.*?)</td>'
                 max_age = 0
@@ -78,7 +78,7 @@ class IWatchOnline_Scraper(scraper.Scraper):
                     if age > max_age: max_age = age
                     if age < min_age: min_age = age
                     hoster = {'multi-part': False, 'class': self, 'url': url.replace(self.base_url, ''), 'host': host.lower(), 'age': age, 'views': None, 'rating': None, 'direct': False}
-                    hoster['quality'] = self._get_quality(video, host.lower(), QUALITY_MAP[quality])
+                    hoster['quality'] = self._get_quality(video, host.lower(), QUALITY_MAP.get(quality, QUALITIES.HIGH))
                     hosters.append(hoster)
 
                 unit = (max_age - min_age) / 100
