@@ -21,10 +21,12 @@ import urlparse
 import re
 import xbmcaddon
 import json
+import xml.dom.minidom
 from salts_lib.constants import VIDEO_TYPES
 from salts_lib.db_utils import DB_Connection
 
 BASE_URL = 'http://www.hdmoviezone.net'
+PHP_URL = 'http://gl.hdmoviezone.net/hdmzgl.php'
 
 class hdmz_Scraper(scraper.Scraper):
     base_url = BASE_URL
@@ -54,11 +56,10 @@ class hdmz_Scraper(scraper.Scraper):
         if source_url:
             url = urlparse.urljoin(self.base_url, source_url)
             html = self._http_get(url, cache_limit=.5)
-            php_url = re.findall('server\d*_php\s*=\s*"([^"]+)', html)[-1]
             match = re.search('file\s*=\s*"([^"]+)', html)
             if match:
                 file_hash = match.group(1)
-                data = self._http_get(php_url, data={'url': file_hash}, headers={'Origin': self.base_url, 'Referer': self.base_url}, cache_limit=0)
+                data = self._http_get(PHP_URL, data={'url': file_hash}, headers={'Origin': self.base_url, 'Referer': source_url}, cache_limit=0)
                 if data:
                     js_data = json.loads(data)
                     for item in js_data['content']:
@@ -73,28 +74,22 @@ class hdmz_Scraper(scraper.Scraper):
 
     def search(self, video_type, title, year):
         results = []
-        search_url = urlparse.urljoin(self.base_url, '/feeds/posts/summary?alt=json&start-index=1&max-results=500&q=')
-        search_url += urllib.quote_plus(title)
+        search_url = urlparse.urljoin(self.base_url, '/feed/?s=%s&paged=1' % (urllib.quote_plus(title)))
         data = self._http_get(search_url, cache_limit=.25)
-        if data:
-            js_data = json.loads(data)
-            if 'entry' in js_data['feed']:
-                for item in js_data['feed']['entry']:
-                    for link in item['link']:
-                        if link['rel'].lower() == 'alternate':
-                            url = link['href']
-                            title_year = link['title']
-                            match = re.search('(.*?)\s*\((\d{4})\)$', title_year)
-                            if match:
-                                match_title, match_year = match.groups()
-                            else:
-                                match_title = title_year
-                                match_year = ''
-                            break
+        dom = xml.dom.minidom.parseString(data)
+        for item in dom.getElementsByTagName('item'):
+            title_year = item.getElementsByTagName('title')[0].firstChild.data.encode('utf-8')
+            link = item.getElementsByTagName('link')[0].firstChild.data.encode('utf-8')
+            match = re.search('(.*)\s+\((\d{4})\)', title_year)
+            if match:
+                match_title, match_year = match.groups()
+            else:
+                match_title = title_year
+                match_year = ''
 
-                    if not year or not match_year or year == match_year:
-                        result = {'url': url.replace(self.base_url, ''), 'title': match_title, 'year': match_year}
-                        results.append(result)
+            if not year or not match_year or year == match_year:
+                result = {'url': link.replace(self.base_url, ''), 'title': match_title, 'year': match_year}
+                results.append(result)
 
         return results
 
