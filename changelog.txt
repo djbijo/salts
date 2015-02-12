@@ -1,3 +1,10 @@
+[B]Version 0.0.61[/B]
+- Improve air-date algorithm
+- Add air-date support to oneclickwatch and tv-release.net
+- Add hdmz scraper
+- Add putlocker.is scraper
+- Add ch131 scraper
+
 [B]Version 0.0.60[/B]
 - Fix myvideolinks.eu scraper
 - Fix movie25 scraper
