@@ -382,6 +382,12 @@
          <setting id="hdmz_try" type="number" default="0" visible="false"/>
          <setting id="hdmz_fail" type="number" default="0" visible="false"/>
          <setting id="hdmz_check" type="number" default="0" visible="false"/>
+         <setting id="Putlocker-enable" type="bool" label="Putlocker Enabled" default="true" visible="true"/>
+         <setting id="Putlocker-base_url" type="text" label="     Base Url" default="http://putlocker.is" visible="eq(-1,true)"/>
+         <setting id="Putlocker-sub_check" type="bool" label="     Include in Page Existence checks?" default="true" visible="eq(-2,true)"/>
+         <setting id="Putlocker_try" type="number" default="0" visible="false"/>
+         <setting id="Putlocker_fail" type="number" default="0" visible="false"/>
+         <setting id="Putlocker_check" type="number" default="0" visible="false"/>
     </category>
 	
     <category label="Subtitles">
