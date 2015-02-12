@@ -95,7 +95,7 @@ class Putlocker_Scraper(scraper.Scraper):
                     
                     result = {'url': url.replace(self.base_url, ''), 'title': match_title, 'year': match_year}
                     results.append(result)
-        results = {result['url']: result for result in results}.values()
+        results = dict((result['url'], result) for result in results).values()
         return results
 
     def _get_episode_url(self, show_url, video):
