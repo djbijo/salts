@@ -62,10 +62,11 @@ class hdmz_Scraper(scraper.Scraper):
                 data = self._http_get(PHP_URL, data={'url': file_hash}, headers={'Origin': self.base_url, 'Referer': source_url}, cache_limit=0)
                 if data:
                     js_data = json.loads(data)
-                    for item in js_data['content']:
-                        if 'type' in item and item['type'].lower().startswith('video'):
-                            hoster = {'multi-part': False, 'host': 'hdmoviezone.net', 'url': item['url'], 'class': self, 'rating': None, 'views': None, 'quality': self._width_get_quality(item['width']), 'direct': True}
-                            hosters.append(hoster)
+                    if js_data and 'content' in js_data:
+                        for item in js_data['content']:
+                            if 'type' in item and item['type'].lower().startswith('video'):
+                                hoster = {'multi-part': False, 'host': 'hdmoviezone.net', 'url': item['url'], 'class': self, 'rating': None, 'views': None, 'quality': self._width_get_quality(item['width']), 'direct': True}
+                                hosters.append(hoster)
 
         return hosters
 
