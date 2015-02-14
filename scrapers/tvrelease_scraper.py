@@ -95,6 +95,7 @@ class TVReleaseNet_Scraper(scraper.Scraper):
                     fallback_search = ''
             else:
                 search_title = '%s %s' % (video.title, video.year)
+                fallback_search = ''
 
             results = self.search(video.video_type, search_title, video.year)
             if not results and fallback_search:
