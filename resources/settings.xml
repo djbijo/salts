@@ -330,7 +330,7 @@
          <setting id="clickplay.to_fail" type="number" default="0" visible="false"/>
          <setting id="clickplay.to_check" type="number" default="0" visible="false"/>
          <setting id="niter.tv-enable" type="bool" label="niter.tv Enabled" default="true" visible="true"/>
-         <setting id="niter.tv-base_url" type="text" label="     Base Url" default="http://niter.tv" visible="eq(-1,true)"/>
+         <setting id="niter.tv-base_url" type="text" label="     Base Url" default="http://niter.co" visible="eq(-1,true)"/>
          <setting id="niter.tv-sub_check" type="bool" label="     Include in Page Existence checks?" default="true" visible="eq(-2,true)"/>
          <setting id="niter.tv_try" type="number" default="0" visible="false"/>
          <setting id="niter.tv_fail" type="number" default="0" visible="false"/>
