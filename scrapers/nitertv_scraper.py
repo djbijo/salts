@@ -27,7 +27,7 @@ from salts_lib.constants import VIDEO_TYPES
 from salts_lib.db_utils import DB_Connection
 from salts_lib.constants import QUALITIES
 
-BASE_URL = 'http://niter.tv'
+BASE_URL = 'http://niter.co'
 MAX_TRIES = 3
 
 class Niter_Scraper(scraper.Scraper):
