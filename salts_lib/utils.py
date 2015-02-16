@@ -34,7 +34,7 @@ token = ADDON.get_setting('trakt_token')
 use_https = ADDON.get_setting('use_https') == 'true'
 trakt_timeout = int(ADDON.get_setting('trakt_timeout'))
 list_size = int(ADDON.get_setting('list_size'))
-last_check = 0
+last_check = datetime.datetime.fromtimestamp(0)
 
 P_MODE = int(ADDON.get_setting('parallel_mode'))
 if P_MODE == P_MODES.THREADS:
