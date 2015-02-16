@@ -20,6 +20,7 @@ import re
 import urlparse
 import xbmcaddon
 import urllib
+import time
 from salts_lib.db_utils import DB_Connection
 from salts_lib.constants import VIDEO_TYPES
 from salts_lib.constants import QUALITIES
@@ -53,7 +54,7 @@ class WMO_Scraper(scraper.Scraper):
             return link
 
     def format_source_label(self, item):
-        label = '[%s] %s (%s views)' % (item['quality'], item['host'], item['views'])
+        label = '[%s] %s (%s old)' % (item['quality'], item['host'], item['age_str'])
         return label
 
     def get_sources(self, video):
@@ -63,20 +64,59 @@ class WMO_Scraper(scraper.Scraper):
             url = urlparse.urljoin(self.base_url, source_url)
             html = self._http_get(url, cache_limit=.5)
 
-            match = re.search('Quality</label>: ([^<]+)', html)
-            if match:
-                quality = QUALITY_MAP.get(match.group(1).upper())
-            else:
-                quality = None
-
-            pattern = 'class="[^"]*tdhost".*?href="([^"]+)">([^<]+).*?class="[^"]*link_views"\s+id="([^"]*)'
+            pattern = 'class="[^"]*tdhost".*?href="([^"]+)">([^<]+).*?"[^"]*datespan[^>]+>([^<]+)'
+            max_age = 0
+            now = min_age = int(time.time())
             for match in re.finditer(pattern, html, re.DOTALL):
-                stream_url, host, views = match.groups()
-                if not views: views = None
-
-                hoster = {'multi-part': False, 'host': host.lower(), 'class': self, 'url': stream_url, 'quality': self._get_quality(video, host, quality), 'views': int(views), 'rating': None, 'direct': False}
+                stream_url, host, age_str = match.groups()
+                age = self.__get_age(now, age_str)
+                if age > max_age: max_age = age
+                if age < min_age: min_age = age
+                hoster = {'multi-part': False, 'host': host.lower(), 'class': self, 'url': stream_url, 'quality': self._get_quality(video, host, QUALITIES.HIGH), 'views': None, 'rating': None, 'direct': False}
+                hoster['age_str'] = age_str
+                hoster['age'] = age
                 hosters.append(hoster)
+
+            unit = (max_age - min_age) / 100
+            for hoster in hosters:
+                if unit > 0:
+                    hoster['rating'] = (hoster['age'] - min_age) / unit
+                else:
+                    hoster['rating'] = 100
+
+                #print '%s, %s' % (hoster['rating'], hoster['age'])
+
         return hosters
+
+    def __get_age(self, now, age_str):
+        age_str = age_str.replace('<span class="linkdate">', '')
+        age_str = age_str.replace('</span>', '')
+        try:
+            age = int(age_str)
+        except ValueError:
+            match = re.search('(\d+)\s+(.*)', age_str)
+            if match:
+                num, unit = match.groups()
+                num = int(num)
+                unit = unit.lower()
+                if 'minute' in unit:
+                    mult = 60
+                elif 'hour' in unit:
+                    mult = (60 * 60)
+                elif 'day' in unit:
+                    mult = (60 * 60 * 24)
+                elif 'month' in unit:
+                    mult = (60 * 60 * 24 * 30)
+                elif 'year' in unit:
+                    mult = (60 * 60 * 24 * 365)
+                else:
+                    mult = 0
+            else:
+                num = 0
+                mult = 0
+            age = now - (num * mult)
+        #print '%s, %s, %s, %s' % (num, unit, mult, age)
+        return age
 
     def get_url(self, video):
         return super(WMO_Scraper, self)._default_get_url(video)
