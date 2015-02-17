@@ -72,16 +72,18 @@ class Afdah_Scraper(scraper.Scraper):
         return super(Afdah_Scraper, self)._default_get_url(video)
 
     def search(self, video_type, title, year):
-        search_url = urlparse.urljoin(self.base_url, '/?s=%s&x=0&y=0&type=title' % (urllib.quote_plus(title)))
-        html = self._http_get(search_url, cache_limit=.25)
-        pattern = '<div><b>Title:</b>\s*(.*?)\s*<br><b>Year:</b>\s*(\d+)\s*\|.*?href="([^"]+)'
+        search_url = urlparse.urljoin(self.base_url, '/wp-content/themes/afdah/ajax-search.php')
+        data = {'search': title, 'type': 'title'}
+        html = self._http_get(search_url, data=data, cache_limit=0)
+        print html
+        pattern = '<li>.*?href="([^"]+)">([^<]+)\s+\((\d{4})\)'
         results = []
         for match in re.finditer(pattern, html, re.DOTALL | re.I):
-            title, match_year, url = match.groups('')
+            url, title, match_year = match.groups('')
             if not year or not match_year or year == match_year:
                 result = {'url': url.replace(self.base_url, ''), 'title': title, 'year': year}
                 results.append(result)
         return results
 
-    def _http_get(self, url, cache_limit=8):
-        return super(Afdah_Scraper, self)._cached_http_get(url, self.base_url, self.timeout, cache_limit=cache_limit)
+    def _http_get(self, url, data=None, cache_limit=8):
+        return super(Afdah_Scraper, self)._cached_http_get(url, self.base_url, self.timeout, data=data, cache_limit=cache_limit)
