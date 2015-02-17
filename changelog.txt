@@ -1,3 +1,11 @@
+[B]Version 0.0.65[/B]
+- Fix niter.tv scraper
+- fix movie search for blogs
+- fix service error
+- fix wmo scraper
+- fix afdah scraper
+- fix mvl scraper
+
 [B]Version 0.0.64[/B]
 - Fix hdmz scraper
 
