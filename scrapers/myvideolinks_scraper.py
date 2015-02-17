@@ -28,6 +28,7 @@ from salts_lib.constants import QUALITIES
 from salts_lib.constants import Q_ORDER
 
 BASE_URL = 'http://myvideolinks.eu'
+LINKS_URL = 'https://raw.githubusercontent.com/tknorris/tknorris-beta-repo/master/links.txt'
 
 class MyVidLinks_Scraper(scraper.Scraper):
     base_url = BASE_URL
@@ -100,19 +101,12 @@ class MyVidLinks_Scraper(scraper.Scraper):
         return hosters
 
     def __fix_base_url(self, video_type):
-        html = self._http_get(self.base_url, cache_limit=1)
-        if video_type == VIDEO_TYPES.MOVIE:
-            pattern = '<h1>\s*MOVIES.*?(http[^<]+)'
-            default_url = 'http://movies.myvideolinks.eu'
-        else:
-            pattern = '<h1>\s*TV SHOWS.*?(http[^<]+)'
-            default_url = 'http://tv.myvideolinks.eu'
-
-        match = re.search(pattern, html)
-        if match:
-            self.base_url = match.group(1)
-        else:
-            self.base_url = default_url
+        html = self._http_get(LINKS_URL, cache_limit=8)
+        for line in html.split('\n'):
+            header, link_video_type, value = line.split(',')
+            value = value.strip()
+            if header == 'mvl_base_url' and link_video_type == video_type:
+                self.base_url = value
 
     def get_url(self, video):
         url = None
@@ -201,7 +195,6 @@ class MyVidLinks_Scraper(scraper.Scraper):
                     title, match_year, extra_title = match.groups()
                     title = '%s [%s]' % (title, extra_title)
 
-            print year, match_year
             if not year or not match_year or year == match_year:
                 result = {'url': url.replace(self.base_url, ''), 'title': title, 'year': match_year}
                 results.append(result)
