@@ -64,7 +64,7 @@ class WMO_Scraper(scraper.Scraper):
             url = urlparse.urljoin(self.base_url, source_url)
             html = self._http_get(url, cache_limit=.5)
 
-            pattern = 'class="[^"]*tdhost".*?href="([^"]+)'
+            pattern = 'class="[^"]*tdhost".*?href="([^"]+)">([^<]+)'
             for match in re.finditer(pattern, html, re.DOTALL):
                 stream_url, host = match.groups()
                 hoster = {'multi-part': False, 'host': host.lower(), 'class': self, 'url': stream_url, 'quality': self._get_quality(video, host, QUALITIES.HIGH), 'views': None, 'rating': None, 'direct': False}
