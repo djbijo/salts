@@ -20,6 +20,7 @@ import urllib
 import urlparse
 import re
 import xbmcaddon
+import string
 from salts_lib.constants import VIDEO_TYPES
 from salts_lib.db_utils import DB_Connection
 from salts_lib.constants import QUALITIES
@@ -45,7 +46,10 @@ class Afdah_Scraper(scraper.Scraper):
         return link
 
     def format_source_label(self, item):
-        return '[%s] %s (%s/100)' % (item['quality'], item['host'], item['rating'])
+        if 'resolution' in item:
+            return '[%s] (%s) %s' % (item['quality'], item['resolution'], item['host'])
+        else:
+            return '[%s] %s' % (item['quality'], item['host'])
 
     def get_sources(self, video):
         source_url = self.get_url(video)
@@ -60,6 +64,14 @@ class Afdah_Scraper(scraper.Scraper):
             else:
                 quality = QUALITIES.HIGH
 
+            for match in re.finditer('href="([^"]+/embed\d*/[^"]+)', html):
+                url = match.group(1)
+                embed_html = self._http_get(url, cache_limit=.5)
+                r = re.search('decryptor\("([^"]+)', embed_html)
+                if r:
+                    plaintext = self._caesar(r.group(1).decode('base-64'), 13).decode('base-64')
+                    hosters += self._get_links(plaintext)
+            
             pattern = 'href="([^"]+)".*play_video.gif'
             for match in re.finditer(pattern, html, re.I):
                 url = match.group(1)
@@ -67,6 +79,23 @@ class Afdah_Scraper(scraper.Scraper):
                 hoster = {'multi-part': False, 'url': url, 'host': host, 'class': self, 'quality': self._get_quality(video, host, quality), 'rating': None, 'views': None, 'direct': False}
                 hosters.append(hoster)
         return hosters
+
+    def _get_links(self, html):
+        hosters = []
+        for match in re.finditer('file\s*:\s*"([^"]+).*?label\s*:\s*"([^"]+)', html):
+            url, resolution = match.groups()
+            hoster = {'multi-part': False, 'url': url, 'host': 'afdah.com', 'class': self, 'quality': self._height_get_quality(resolution[:-1]), 'rating': None, 'views': None, 'direct': True}
+            hoster['resolution'] = resolution
+            hosters.append(hoster)
+        hosters.sort(key=lambda x: int(x['resolution'][:-1]), reverse=True)
+        return hosters
+
+    def _caesar(self, plaintext, shift):
+        lower = string.ascii_lowercase
+        lower_trans = lower[shift:] + lower[:shift]
+        alphabet = lower + lower.upper()
+        shifted = lower_trans + lower_trans.upper()
+        return plaintext.translate(string.maketrans(alphabet, shifted))
 
     def get_url(self, video):
         return super(Afdah_Scraper, self)._default_get_url(video)
