@@ -103,22 +103,16 @@ class UFlix_Scraper(scraper.Scraper):
         if match:
             try:
                 fragment = match.group(0)
+                result = {}
                 for match in re.finditer(pattern2, fragment):
-                    result = {}
-
-                    if video_type == VIDEO_TYPES.MOVIE:
-                        res_title, res_year, url = match.groups('')
-                    else:
-                        res_title, url, res_year = match.groups('')
-
-                    if not year or year == res_year:
+                    res_title, url, res_year = match.groups('')
+                    if not year or not res_year or year == res_year:
                         result['title'] = res_title
                         result['url'] = url.replace(self.base_url, '')
                         result['year'] = res_year
                         results.append(result)
             except Exception as e:
                 log_utils.log('Failure during %s search: |%s|%s|%s| (%s)' % (self.get_name(), video_type, title, year, str(e)), xbmc.LOGWARNING)
-
         return results
 
     def _get_episode_url(self, show_url, video):
