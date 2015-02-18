@@ -222,6 +222,10 @@
          <setting id="filmikz.ch_try" type="number" default="0" visible="false"/>
          <setting id="filmikz.ch_fail" type="number" default="0" visible="false"/>
          <setting id="filmikz.ch_check" type="number" default="0" visible="false"/>
+         <setting id="hdtvshows.net-enable" type="bool" label="hdtvshows.net Enabled" default="true" visible="true"/>
+         <setting id="hdtvshows.net-base_url" type="text" label="     Base Url" default="http://hdtvshows.net" visible="eq(-1,true)"/>
+         <setting id="hdtvshows.net-username" type="text" label="     Username" default="" visible="eq(-2,true)"/>
+         <setting id="hdtvshows.net-password" type="text" label="     Password" option="hidden" default="" visible="eq(-3,true)"/>
          <setting id="iWatchOnline-enable" type="bool" label="iWatchOnline Enabled" default="true" visible="true"/>
          <setting id="iWatchOnline-base_url" type="text" label="     Base Url" default="http://www.iwatchonline.to" visible="eq(-1,true)"/>
          <setting id="iWatchOnline-sub_check" type="bool" label="     Include in Page Existence checks?" default="true" visible="eq(-2,true)"/>
