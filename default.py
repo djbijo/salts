@@ -1210,9 +1210,10 @@ def manage_collection(mode, section, id_type, show_id):
 
 @url_dispatcher.register(MODES.ADD_TO_LIST, ['section', 'id_type', 'show_id'], ['slug'])
 def add_to_list(section, id_type, show_id, slug=None):
-    add_many_to_list(section, {id_type: show_id}, slug)
-    builtin = "XBMC.Notification(%s,Item Added to List, 2000, %s)" % (_SALTS.get_name(), ICON_PATH)
-    xbmc.executebuiltin(builtin)
+    response = add_many_to_list(section, {id_type: show_id}, slug)
+    if response is not None:
+        builtin = "XBMC.Notification(%s,Item Added to List, 2000, %s)" % (_SALTS.get_name(), ICON_PATH)
+        xbmc.executebuiltin(builtin)
     #xbmc.executebuiltin("XBMC.Container.Refresh")
 
 def add_many_to_list(section, items, slug=None):
@@ -1221,6 +1222,8 @@ def add_many_to_list(section, items, slug=None):
         response = trakt_api.add_to_watchlist(section, items)
     elif slug:
         response = trakt_api.add_to_list(section, slug, items)
+    else:
+        response = None
     return response
 
 @url_dispatcher.register(MODES.COPY_LIST, ['section', 'slug'], ['username', 'target_slug'])
