@@ -98,7 +98,7 @@ class UFlix_Scraper(scraper.Scraper):
             pattern2 = '<a title="Watch (.*?) Online For FREE".*?href="([^"]+)".*\((\d{1,4})\)</a>'
         else:
             pattern = 'id="movies".*id="series"'
-            pattern2 = '<a\s+title="([^"]+)\s+\d{4}\.?".*?href="([^"]+)".*?\((\d{4})\)</a>'
+            pattern2 = '<a\s+title="([^"]+)\s+\d{4}\.?".*?href="([^"]+)".*?\((\d{4})\.?\)</a>'
         match = re.search(pattern, html, re.DOTALL)
         if match:
             try:
@@ -107,9 +107,7 @@ class UFlix_Scraper(scraper.Scraper):
                 for match in re.finditer(pattern2, fragment):
                     res_title, url, res_year = match.groups('')
                     if not year or not res_year or year == res_year:
-                        result['title'] = res_title
-                        result['url'] = url.replace(self.base_url, '')
-                        result['year'] = res_year
+                        result = {'title': res_title, 'url': url.replace(self.base_url, ''), 'year': res_year}
                         results.append(result)
             except Exception as e:
                 log_utils.log('Failure during %s search: |%s|%s|%s| (%s)' % (self.get_name(), video_type, title, year, str(e)), xbmc.LOGWARNING)
