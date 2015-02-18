@@ -1,3 +1,13 @@
+[B]Version 0.0.66[/B]
+- Add hdtvshows.net scraper
+- Fix wmo and wso scrapers
+- fix 2movies scraper
+- fix viooz.ac scraper
+- fix uflix scraper
+- improve film-streaming.in scrpaer
+- Add hidden link support to afdah scraper
+- Minor Fixes
+
 [B]Version 0.0.65[/B]
 - Fix niter.tv scraper
 - fix movie search for blogs
