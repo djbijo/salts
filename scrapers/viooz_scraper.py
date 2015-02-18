@@ -83,10 +83,13 @@ class VioozAc_Scraper(scraper.Scraper):
                 if 'hqq.tv' in stream_url:
                     continue
 
-                host = urlparse.urlsplit(stream_url).hostname.lower()
-                hoster = {'multi-part': False, 'url': stream_url, 'class': self, 'quality': self._get_quality(video, host, quality), 'host': host, 'rating': None, 'views': None, 'direct': direct}
-                hosters.append(hoster)
-        # print hosters
+                try:
+                    host = urlparse.urlsplit(stream_url).hostname.lower()
+                except AttributeError:
+                    pass
+                else:
+                    hoster = {'multi-part': False, 'url': stream_url, 'class': self, 'quality': self._get_quality(video, host, quality), 'host': host, 'rating': None, 'views': None, 'direct': direct}
+                    hosters.append(hoster)
         return hosters
 
     def get_url(self, video):
