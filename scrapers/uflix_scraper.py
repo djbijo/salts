@@ -103,7 +103,6 @@ class UFlix_Scraper(scraper.Scraper):
         if match:
             try:
                 fragment = match.group(0)
-                result = {}
                 for match in re.finditer(pattern2, fragment):
                     res_title, url, res_year = match.groups('')
                     if not year or not res_year or year == res_year:
