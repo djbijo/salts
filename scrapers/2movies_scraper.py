@@ -60,7 +60,7 @@ class TwoMovies_Scraper(scraper.Scraper):
         source_url = self.get_url(video)
         if source_url:
             url = urlparse.urljoin(self.base_url, source_url)
-            html = self._http_get(url, cache_limit=.5)
+            html = self._http_get(url, cache_limit=1)
 
             pattern = 'class="playDiv3".*?href="([^"]+).*?>(.*?)</a>'
             for match in re.finditer(pattern, html, re.DOTALL | re.I):
@@ -75,7 +75,7 @@ class TwoMovies_Scraper(scraper.Scraper):
     def search(self, video_type, title, year):
         search_url = urlparse.urljoin(self.base_url, '/search/?criteria=title&search_query=')
         search_url += urllib.quote_plus(title.lower())
-        html = self._http_get(search_url, cache_limit=.5)
+        html = self._http_get(search_url, cache_limit=1)
         results = []
 
         # filter the html down to only tvshow or movie results
