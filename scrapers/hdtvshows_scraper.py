@@ -27,7 +27,6 @@ from salts_lib.constants import VIDEO_TYPES
 from salts_lib.constants import QUALITIES
 
 BASE_URL = 'http://hdtvshows.net'
-LOGOUT_URL = 'href="/out.php"'
 
 class HDTVShows_Scraper(scraper.Scraper):
     base_url = BASE_URL
@@ -103,11 +102,10 @@ class HDTVShows_Scraper(scraper.Scraper):
         if not self.username or not self.password:
             return ''
 
-        html = super(HDTVShows_Scraper, self)._cached_http_get(url, self.base_url, self.timeout, data=data, cache_limit=cache_limit)
         if not self.__logged_in():
             log_utils.log('Logging in for url (%s)' % (url), xbmc.LOGDEBUG)
             self.__login()
-            html = super(HDTVShows_Scraper, self)._cached_http_get(url, self.base_url, self.timeout, data=data, cache_limit=0)
+        html = super(HDTVShows_Scraper, self)._cached_http_get(url, self.base_url, self.timeout, data=data, cache_limit=cache_limit)
 
         return html
 
