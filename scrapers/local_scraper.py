@@ -22,6 +22,8 @@ import xbmc
 import urlparse
 from salts_lib import log_utils
 from salts_lib.constants import VIDEO_TYPES
+from salts_lib.constants import QUALITIES
+from salts_lib.constants import SORT_KEYS
 
 from salts_lib.db_utils import DB_Connection
 BASE_URL = ''
@@ -30,6 +32,7 @@ class Local_Scraper(scraper.Scraper):
     def __init__(self, timeout=scraper.DEFAULT_TIMEOUT):
         self.db_connection = DB_Connection()
         self.base_url = xbmcaddon.Addon().getSetting('%s-base_url' % (self.get_name()))
+        self.def_quality = int(xbmcaddon.Addon().getSetting('%s-def-quality' % (self.get_name())))
 
     @classmethod
     def provides(cls):
@@ -63,7 +66,8 @@ class Local_Scraper(scraper.Scraper):
             log_utils.log('Source Meta: %s' % (meta), xbmc.LOGDEBUG)
             if 'result' in meta and result_key in meta['result']:
                 details = meta['result'][result_key]
-                host = {'multi-part': False, 'class': self, 'url': details['file'], 'host': 'XBMC Library', 'quality': None, 'views': details['playcount'], 'rating': None, 'direct': True}
+                def_quality = [item[0] for item in sorted(SORT_KEYS['quality'].items(), key=lambda x:x[1])][self.def_quality]
+                host = {'multi-part': False, 'class': self, 'url': details['file'], 'host': 'XBMC Library', 'quality': def_quality, 'views': details['playcount'], 'rating': None, 'direct': True}
                 stream_details = details['streamdetails']
                 if len(stream_details['video']) > 0 and 'width' in stream_details['video'][0]:
                     host['quality'] = self._width_get_quality(stream_details['video'][0]['width'])
@@ -119,6 +123,13 @@ class Local_Scraper(scraper.Scraper):
 
         if not filename.endswith('.strm'):
             return url
+
+    @classmethod
+    def get_settings(cls):
+        settings = super(Local_Scraper, cls).get_settings()
+        name = cls.get_name()
+        settings.append('         <setting id="%s-def-quality" type="enum" label="     Default Quality" values="None|Low|Medium|High|HD" default="0" visible="eq(-6,true)"/>' % (name))
+        return settings
 
     def search(self, video_type, title, year):
         filter_str = '{"field": "title", "operator": "contains", "value": "%s"}' % (title)
