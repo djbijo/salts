@@ -107,7 +107,7 @@ class IStreamHD_Scraper(scraper.Scraper):
             match = re.search(pattern, html, re.DOTALL)
             if match:
                 season_container = match.group()
-                pattern = 'href="([^"]+)">.*?\s+E%s<' % (video.episode)
+                pattern = 'href="([^"]+)">[^<]*\s+E%s<' % (video.episode)
                 match = re.search(pattern, season_container)
                 if match:
                     return '/get/' + match.group(1)
