@@ -538,39 +538,42 @@ def get_progress(cache_override=False):
             worker = utils.start_worker(q, utils.parallel_get_progress, [watched['show']['ids']['slug'], cached])
             worker_count += 1
             workers.append(worker)
+            # create a shows dictionary to be used during progress building
             shows[watched['show']['ids']['slug']] = watched['show']
+            shows[watched['show']['ids']['slug']]['last_watched_at'] = watched['last_watched_at']
 
     if utils.P_MODE != P_MODES.NONE:
-        prog_list = []
-        while worker_count > 0:
-            try:
-                log_utils.log('Calling get with timeout: %s' % (timeout), xbmc.LOGDEBUG)
-                result = q.get(True, timeout)
-                #log_utils.log('Got Progress: %s' % (result), xbmc.LOGDEBUG)
-                worker_count -= 1
-                prog_list.append(result)
-                if max_timeout > 0:
-                    timeout = max_timeout - (time.time() - begin)
-                    if timeout < 0: timeout = 0
-            except utils.Empty:
-                log_utils.log('Get Progress Process Timeout', xbmc.LOGWARNING)
-                break
-        else:
-            log_utils.log('All progress results received')
-        
-        total = len(workers)
-        workers = utils.reap_workers(workers)
         try:
-            if len(prog_list) < total:
-                log_utils.log('Progress Timeouts: %s/%s' % (total - len(prog_list), total))
+            while worker_count > 0:
+                try:
+                    log_utils.log('Calling get with timeout: %s' % (timeout), xbmc.LOGDEBUG)
+                    progress = q.get(True, timeout)
+                    #log_utils.log('Got Progress: %s' % (progress), xbmc.LOGDEBUG)
+                    worker_count -= 1
+    
+                    if 'next_episode' in progress and progress['next_episode']:
+                        episode = {'show': shows[progress['slug']], 'episode': progress['next_episode']}
+                        episode['last_watched_at'] = shows[progress['slug']]['last_watched_at']
+                        episode['percent_completed'] = (progress['completed'] * 100) / progress['aired'] if progress['aired'] > 0 else 0
+                        episode['completed'] = progress['completed']
+                        episodes.append(episode)
+    
+                    if max_timeout > 0:
+                        timeout = max_timeout - (time.time() - begin)
+                        if timeout < 0: timeout = 0
+                except utils.Empty:
+                    log_utils.log('Get Progress Process Timeout', xbmc.LOGWARNING)
+                    break
+            else:
+                log_utils.log('All progress results received')
             
-            for progress in prog_list:
-                if 'next_episode' in progress and progress['next_episode']:
-                    episode = {'show': shows[progress['slug']], 'episode': progress['next_episode']}
-                    episode['last_watched_at'] = watched['last_watched_at']
-                    episode['percent_completed'] = (progress['completed'] * 100) / progress['aired'] if progress['aired'] > 0 else 0
-                    episode['completed'] = progress['completed']
-                    episodes.append(episode)
+            total = len(workers)
+            workers = utils.reap_workers(workers)
+            if worker_count > 0:
+                timeout_msg = 'Progress Timeouts: %s/%s' % (worker_count, total)
+                log_utils.log(timeout_msg, xbmc.LOGWARNING)
+                builtin = 'XBMC.Notification(%s,%s, 5000, %s)'
+                xbmc.executebuiltin(builtin % (_SALTS.get_name(), timeout_msg, ICON_PATH))
         finally:
             utils.reap_workers(workers, None)
     
