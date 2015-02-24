@@ -1,3 +1,9 @@
+[B]Version 0.0.67[/B]
+- Fix wmo scraper
+- Add default quality to local scraper
+- fix istream scraper
+- Add parallel My Next Episodes code
+
 [B]Version 0.0.66[/B]
 - Add hdtvshows.net scraper
 - Fix wmo and wso scrapers
