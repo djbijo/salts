@@ -30,7 +30,7 @@ def enum(**enums):
 DB_TYPES = enum(MYSQL='mysql', SQLITE='sqlite')
 CSV_MARKERS = enum(REL_URL='***REL_URL***', OTHER_LISTS='***OTHER_LISTS***', SAVED_SEARCHES='***SAVED_SEARCHES***', BOOKMARKS='***BOOKMARKS***')
 TRIG_DB_UPG = False
-MAX_TRIES = 2
+MAX_TRIES = 5
 
 _SALTS = Addon('plugin.video.salts')
 

@@ -426,6 +426,18 @@ def parallel_get_url(q, cls, video):
     related['label'] = '[%s] %s' % (related['name'], related['url'])
     q.put(related)
 
+def parallel_get_progress(q, slug, cached):
+    if P_MODE == P_MODES.THREADS:
+        worker = threading.current_thread()
+    elif P_MODE == P_MODES.PROCESSES:
+        worker = multiprocessing.current_process()
+
+    log_utils.log('Starting %s (%s) for %s progress' % (worker.name, worker, slug), xbmc.LOGDEBUG)
+    progress = trakt_api.get_show_progress(slug, full=True, cached=cached)
+    progress['slug'] = slug  # add in a hacked slug to be used to match progress up to the show its for
+    log_utils.log('Got progress for %s from %s' % (slug, worker), xbmc.LOGDEBUG)
+    q.put(progress)
+
 # Run a task on startup. Settings and mode values must match task name
 def do_startup_task(task):
     run_on_startup = ADDON.get_setting('auto-%s' % task) == 'true' and ADDON.get_setting('%s-during-startup' % task) == 'true'
