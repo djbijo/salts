@@ -1499,11 +1499,11 @@ def add_to_library(video_type, title, year, slug):
 
 def make_path(base_path, video_type, title, year='', season=''):
     path = base_path
+    show_folder = re.sub(r'([^\w\-_\. ]|\.$)', '_', title)
     if video_type == VIDEO_TYPES.TVSHOW:
-        show_folder = re.sub(r'([^\w\-_\. ]|\.$)', '_', title)
         path = os.path.join(base_path, show_folder, 'Season %s' % (season))
     else:
-        dir_name = title if not year else '%s (%s)' % (title, year)
+        dir_name = show_folder if not year else '%s (%s)' % (show_folder, year)
         path = os.path.join(base_path, dir_name)
     return path
 
