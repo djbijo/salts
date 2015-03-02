@@ -207,7 +207,7 @@
          <setting id="OnlineMovies_fail" type="number" default="0" visible="false"/>
          <setting id="OnlineMovies_check" type="number" default="0" visible="false"/>
          <setting id="MyVideoLinks.eu-enable" type="bool" label="MyVideoLinks.eu Enabled" default="true" visible="true"/>
-         <setting id="MyVideoLinks.eu-base_url" type="text" label="     Base Url" default="http://myvideolinks.eu" visible="eq(-1,true)"/>
+         <setting id="MyVideoLinks.eu-base_url" type="text" label="     Base Url" default="http://download.myvideolinks.eu" visible="eq(-1,true)"/>
          <setting id="MyVideoLinks.eu-sub_check" type="bool" label="     Include in Page Existence checks?" default="false" visible="eq(-2,true)"/>
          <setting id="MyVideoLinks.eu_try" type="number" default="0" visible="false"/>
          <setting id="MyVideoLinks.eu_fail" type="number" default="0" visible="false"/>

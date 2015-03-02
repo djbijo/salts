@@ -27,8 +27,7 @@ from salts_lib.db_utils import DB_Connection
 from salts_lib.constants import QUALITIES
 from salts_lib.constants import Q_ORDER
 
-BASE_URL = 'http://myvideolinks.eu'
-LINKS_URL = 'https://raw.githubusercontent.com/tknorris/tknorris-beta-repo/master/links.txt'
+BASE_URL = 'http://download.myvideolinks.eu'
 
 class MyVidLinks_Scraper(scraper.Scraper):
     base_url = BASE_URL
@@ -56,7 +55,6 @@ class MyVidLinks_Scraper(scraper.Scraper):
         source_url = self.get_url(video)
         hosters = []
         if source_url:
-            self.__fix_base_url(video.video_type)
             url = urlparse.urljoin(self.base_url, source_url)
             html = self._http_get(url, cache_limit=.5)
 
@@ -99,14 +97,6 @@ class MyVidLinks_Scraper(scraper.Scraper):
             hoster['quality'] = self._blog_get_quality(video, q_str, hoster['host'])
             hosters.append(hoster)
         return hosters
-
-    def __fix_base_url(self, video_type):
-        html = self._http_get(LINKS_URL, cache_limit=8)
-        for line in html.split('\n'):
-            header, link_video_type, value = line.split(',')
-            value = value.strip()
-            if header == 'mvl_base_url' and link_video_type == video_type:
-                self.base_url = value
 
     def get_url(self, video):
         url = None
@@ -159,18 +149,9 @@ class MyVidLinks_Scraper(scraper.Scraper):
         return settings
 
     def search(self, video_type, title, year):
-        self.__fix_base_url(video_type)
-        if video_type == VIDEO_TYPES.MOVIE:
-            search_url = self.base_url
-            data = {'s': title}
-            cache_limit = 0
-        else:
-            search_url = urlparse.urljoin(self.base_url, '/?s=')
-            search_url += urllib.quote_plus(title)
-            data = None
-            cache_limit = .25
-
-        html = self._http_get(search_url, data=data, cache_limit=cache_limit)
+        search_url = self.base_url
+        data = {'s': title}
+        html = self._http_get(search_url, data=data, cache_limit=0)
         results = []
         filter_days = datetime.timedelta(days=int(xbmcaddon.Addon().getSetting('%s-filter' % (self.get_name()))))
         today = datetime.date.today()
