@@ -78,8 +78,8 @@ class OroroTV_Scraper(scraper.Scraper):
         return super(OroroTV_Scraper, self)._default_get_url(video)
 
     def _get_episode_url(self, show_url, video):
-        episode_pattern = 'href="#%s-%s"\s+class="episode"\s+data-href="([^"]+)' % (video.season, video.episode)
-        title_pattern = 'class="episode" data-href="([^"]+)[^>]+>.\d\s+([^<]+)'
+        episode_pattern = 'data-href="([^"]+)[^>]*class="episode"\s+href="#%s-%s"' % (video.season, video.episode)
+        title_pattern = 'data-href="([^"]+)[^>]+class="episode"[^>]+>.\d+\s+([^<]+)'
         return super(OroroTV_Scraper, self)._default_get_episode_url(show_url, video, episode_pattern, title_pattern)
 
     def search(self, video_type, title, year):
