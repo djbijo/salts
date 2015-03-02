@@ -27,7 +27,7 @@ from salts_lib.constants import VIDEO_TYPES
 from salts_lib.constants import QUALITIES
 
 QUALITY_MAP = {'HD': QUALITIES.HIGH, 'LOW': QUALITIES.LOW}
-BASE_URL = 'http://uflix.org'
+BASE_URL = 'http://uflix.me'
 
 class UFlix_Scraper(scraper.Scraper):
     base_url = BASE_URL
