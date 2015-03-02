@@ -21,13 +21,21 @@ import urllib
 import urlparse
 import re
 import xbmcaddon
+import random
 from salts_lib.db_utils import DB_Connection
 from salts_lib import log_utils
 from salts_lib.constants import VIDEO_TYPES
 from salts_lib.constants import QUALITIES
+from salts_lib.constants import USER_AGENT
 
 QUALITY_MAP = {'HD': QUALITIES.HIGH, 'LOW': QUALITIES.LOW}
 BASE_URL = 'http://twomovies.us'
+UA_RAND = {
+           'Mozilla/5.0': ['Mozilla/5.0', 'Mozilla/4.0'],
+           'MSIE 11': ['MSIE 11', 'MSIE 11.0', 'MSIE 10.0', 'MSIE 9.0', 'MSIE 8.0', 'MSIE 7.0b', 'MSIE 7.0'],
+           'Windows NT 6.3': ['Windows NT 6.3', 'Windows NT 6.1', 'Windows NT 6.0', 'Windows NT 5.0', 'Windows 3.1'],
+           'Trident/7.0': ['Trident/7.0', 'Trident/6.0', 'Trident/5.0', 'Trident/4.0']
+           }
 
 class TwoMovies_Scraper(scraper.Scraper):
     base_url = BASE_URL
@@ -75,7 +83,7 @@ class TwoMovies_Scraper(scraper.Scraper):
     def search(self, video_type, title, year):
         search_url = urlparse.urljoin(self.base_url, '/search/?criteria=title&search_query=')
         search_url += urllib.quote_plus(title.lower())
-        html = self._http_get(search_url, cache_limit=1)
+        html = self._http_get(search_url, cache_limit=0)
         results = []
 
         # filter the html down to only tvshow or movie results
@@ -107,4 +115,8 @@ class TwoMovies_Scraper(scraper.Scraper):
         return super(TwoMovies_Scraper, self)._default_get_episode_url(show_url, video, episode_pattern, title_pattern)
 
     def _http_get(self, url, cookies=None, cache_limit=8):
-        return super(TwoMovies_Scraper, self)._cached_http_get(url, self.base_url, self.timeout, cookies, cache_limit=cache_limit)
+        user_agent = USER_AGENT
+        for key in UA_RAND:
+            user_agent = user_agent.replace(key, random.choice(UA_RAND[key]))
+        headers = {'User-Agent': user_agent}
+        return super(TwoMovies_Scraper, self)._cached_http_get(url, self.base_url, self.timeout, cookies, headers=headers, cache_limit=cache_limit)
