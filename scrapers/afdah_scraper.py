@@ -67,7 +67,7 @@ class Afdah_Scraper(scraper.Scraper):
             for match in re.finditer('href="([^"]+/embed\d*/[^"]+)', html):
                 url = match.group(1)
                 embed_html = self._http_get(url, cache_limit=.5)
-                r = re.search('decryptor\("([^"]+)', embed_html)
+                r = re.search('write\("([^"]+)', embed_html)
                 if r:
                     plaintext = self._caesar(r.group(1).decode('base-64'), 13).decode('base-64')
                     hosters += self._get_links(plaintext)
