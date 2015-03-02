@@ -44,15 +44,7 @@ class Movie25_Scraper(scraper.Scraper):
         return 'movie25'
 
     def resolve_link(self, link):
-        url = urlparse.urljoin(self.base_url, link)
-        html = self._http_get(url, cache_limit=0)
-        match = re.search('href=\'([^\']*)\'"\s+value="Click Here to Play"', html, re.DOTALL | re.I)
-        if match:
-            return match.group(1)
-        else:
-            match = re.search('<IFRAME SRC="(?:tz\.php\?url=)?([^"]+)', html, re.DOTALL)
-            if match:
-                return match.group(1)
+        return link
 
     def format_source_label(self, item):
         return '[%s] %s' % (item['quality'], item['host'])
