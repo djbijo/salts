@@ -69,10 +69,11 @@ class Movie25_Scraper(scraper.Scraper):
             if match:
                 quality = QUALITY_MAP.get(match.group(1).strip().upper())
 
-            pattern = 'li id="link_name">\s*(.*?)\s*</li>.*?go_to\(\d*\s*,\s*\'([^\']+)'
+            pattern = 'go_to\(\d*\s*,\s*\'([^\']+)'
             for match in re.finditer(pattern, html, re.DOTALL):
-                host, url = match.groups()
-                hoster = {'multi-part': False, 'host': host, 'class': self, 'url': url, 'quality': self._get_quality(video, host, quality), 'rating': None, 'views': None, 'direct': False}
+                url = match.group(1)
+                host = urlparse.urlsplit(url).hostname
+                hoster = {'multi-part': False, 'host': host.lower(), 'class': self, 'url': url, 'quality': self._get_quality(video, host, quality), 'rating': None, 'views': None, 'direct': False}
                 hosters.append(hoster)
         return hosters
 
