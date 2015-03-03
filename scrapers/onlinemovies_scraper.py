@@ -59,10 +59,9 @@ class OnlineMovies_Scraper(scraper.Scraper):
         if source_url:
             url = urlparse.urljoin(self.base_url, source_url)
             html = self._http_get(url, cache_limit=.5)
-            match = re.search("class=\"video-embed\">\s+<iframe.*?src='.*?ref=([^&]+)", html)
+            match = re.search('class="video-embed".*?src="([^"]+)', html, re.DOTALL)
             if match:
-                ref = match.group(1)
-                url = 'http://videomega.tv/iframe.php?ref=%s' % (ref)
+                url = match.group(1)
                 hoster = {'multi-part': False, 'host': 'videomega.tv', 'class': self, 'quality': None, 'views': None, 'rating': None, 'url': url, 'direct': False}
                 match = re.search('class="views-infos">(\d+).*?class="rating">(\d+)%', html, re.DOTALL)
                 if match:
