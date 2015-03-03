@@ -71,7 +71,7 @@ class MyVidLinks_Scraper(scraper.Scraper):
         return hosters
 
     def __get_movie_links(self, video, views, html):
-        pattern = 'rel="bookmark"\s+title="Permanent Link to ([^"]+)'
+        pattern = '<h1><span>([^<]+)'
         match = re.search(pattern, html)
         q_str = ''
         if match:
@@ -149,13 +149,13 @@ class MyVidLinks_Scraper(scraper.Scraper):
         return settings
 
     def search(self, video_type, title, year):
-        search_url = self.base_url
-        data = {'s': title}
-        html = self._http_get(search_url, data=data, cache_limit=0)
+        search_url = urlparse.urljoin(self.base_url, '/?s=')
+        search_url += urllib.quote_plus(title)
+        html = self._http_get(search_url, cache_limit=1)
         results = []
         filter_days = datetime.timedelta(days=int(xbmcaddon.Addon().getSetting('%s-filter' % (self.get_name()))))
         today = datetime.date.today()
-        pattern = '<h4>\s*<a\s+href="([^"]+)"\s+rel="bookmark"\s+title="([^"]+)'
+        pattern = '<h1><span><a\s+href="([^"]+)"\s+rel="bookmark"\s+title="([^"]+)'
         for match in re.finditer(pattern, html, re.DOTALL):
             url, title = match.groups('')
 
