@@ -92,10 +92,10 @@
 		<setting id="source_results" type="number" label="Maximum Source Results (0=No Limit)" default="0"/>
 		<setting id="filter_unusable" type="number" label="Filter Top Unusable Sources (0=None)" default="50"/>
 		<setting id="excl_list" type="text" label="Source Exclusion List" default=""/>
-		<setting id="Episode_quality" type="enum" label="Allowed TV Show Quality" values="HD & SD|HD Only|SD Only" default="0" visible="true"/>
-		<setting id="Movie_quality" type="enum" label="Allowed Movie Quality" values="HD & SD|HD Only|SD Only" default="0" visible="true"/>
-        <setting id="airdate-fallback" type="bool" label="Match episode air date when season & episode fails" default="true"/>
-		<setting id="title-fallback" type="bool" label="Match episode title when season & episode fails" default="true"/>
+		<setting id="Episode_quality" type="enum" label="Allowed TV Show Quality" values="HD &amp; SD|HD Only|SD Only" default="0" visible="true"/>
+		<setting id="Movie_quality" type="enum" label="Allowed Movie Quality" values="HD &amp; SD|HD Only|SD Only" default="0" visible="true"/>
+        <setting id="airdate-fallback" type="bool" label="Match episode air date when season &amp; episode fails" default="true"/>
+		<setting id="title-fallback" type="bool" label="Match episode title when season &amp; episode fails" default="true"/>
 	    <setting id="last_check" type="number" default="0" visible="false"/>
 		<setting id="auto-disable" type="enum" label="Automatically disable slow scrapers" values="Off|Prompt|On" default="1"/>
 		<setting id="disable-freq" type="slider" label="     Check Frequency (requests)" default="100" range="100,50,1000" option="int" enable="!eq(-1,0)"/>
@@ -409,6 +409,15 @@
          <setting id="RLSSource.net-select" type="enum" label="     Automatically Select (Movies only)" values="Most Recent|Highest Quality" default="0" visible="eq(-7,true)"/>
     </category>
 	
+    <category label="Scrapers 4">
+         <setting id="pftv-enable" type="bool" label="pftv Enabled" default="true" visible="true"/>
+         <setting id="pftv-base_url" type="text" label="     Base Url" default="http://projectfreetv.ch" visible="eq(-1,true)"/>
+         <setting id="pftv-sub_check" type="bool" label="     Include in Page Existence checks?" default="true" visible="eq(-2,true)"/>
+         <setting id="pftv_try" type="number" default="0" visible="false"/>
+         <setting id="pftv_fail" type="number" default="0" visible="false"/>
+         <setting id="pftv_check" type="number" default="0" visible="false"/>
+    </category>
+
     <category label="Subtitles">
     	<setting type="lsep" label="Subtitles work only for TV Shows currently"/>
     	<setting id="enable-subtitles" type="bool" label="Enable Subtitles" default="false"/>

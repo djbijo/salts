@@ -41,7 +41,7 @@ BASE_URL = ''
 CAPTCHA_BASE_URL = 'http://www.google.com/recaptcha/api'
 COOKIEPATH = xbmc.translatePath(xbmcaddon.Addon().getAddonInfo('profile'))
 MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
-
+SHORT_MONS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
 Q_LIST = [item[0] for item in sorted(Q_ORDER.items(), key=lambda x:x[1])]
 
 abstractstaticmethod = abc.abstractmethod
@@ -302,6 +302,7 @@ class Scraper(object):
                     airdate_pattern = airdate_pattern.replace('{month}', str(video.ep_airdate.month))
                     airdate_pattern = airdate_pattern.replace('{p_month}', '%02d' % (video.ep_airdate.month))
                     airdate_pattern = airdate_pattern.replace('{month_name}', MONTHS[video.ep_airdate.month - 1])
+                    airdate_pattern = airdate_pattern.replace('{short_month}', SHORT_MONS[video.ep_airdate.month - 1])
                     airdate_pattern = airdate_pattern.replace('{day}', str(video.ep_airdate.day))
                     airdate_pattern = airdate_pattern.replace('{p_day}', '%02d' % (video.ep_airdate.day))
                     log_utils.log('Air Date Pattern: %s' % (airdate_pattern), xbmc.LOGDEBUG)
