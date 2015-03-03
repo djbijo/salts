@@ -44,7 +44,17 @@ class Movie25_Scraper(scraper.Scraper):
         return 'movie25'
 
     def resolve_link(self, link):
-        return link
+        url = urlparse.urljoin(self.base_url, link)
+        html = self._http_get(url, cache_limit=0)
+        match = re.search('href=\'([^\']*)\'"\s+value="Click Here to Play"', html, re.DOTALL | re.I)
+        if match:
+            return match.group(1)
+        else:
+            match = re.search('<IFRAME SRC="(?:/?tz\.php\?url=)?([^"]+)', html, re.DOTALL | re.I)
+            if match:
+                return match.group(1)
+            else:
+                return link
 
     def format_source_label(self, item):
         return '[%s] %s' % (item['quality'], item['host'])
@@ -61,11 +71,10 @@ class Movie25_Scraper(scraper.Scraper):
             if match:
                 quality = QUALITY_MAP.get(match.group(1).strip().upper())
 
-            pattern = 'go_to\(\d*\s*,\s*\'([^\']+)'
-            for match in re.finditer(pattern, html, re.DOTALL):
-                url = match.group(1)
-                host = urlparse.urlsplit(url).hostname
-                hoster = {'multi-part': False, 'host': host.lower(), 'class': self, 'url': url, 'quality': self._get_quality(video, host, quality), 'rating': None, 'views': None, 'direct': False}
+            for match in re.finditer('id="link_name">\s*([^<]+).*?href="([^"]+)', html, re.DOTALL):
+                host, url = match.groups()
+                host = host.lower()
+                hoster = {'multi-part': False, 'host': host, 'class': self, 'url': url, 'quality': self._get_quality(video, host, quality), 'rating': None, 'views': None, 'direct': False}
                 hosters.append(hoster)
         return hosters
 
