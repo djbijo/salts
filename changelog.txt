@@ -1,3 +1,17 @@
+[B]Version 0.0.68[/B]
+- Fix invalid characters in folders
+- fix uflix scraper
+- fix twomovies scraper
+- fix afdah scraper
+- fix movie25 scraper
+- remove putlocker scraper
+- fix myvideolinks scraper
+- fix ororo.tv scraper
+- add watchfree.to scraper
+- add rlsssource scraper
+- fix onlinemovies scraper
+- add project-free-tv scraper
+
 [B]Version 0.0.67[/B]
 - Fix wmo scraper
 - Add default quality to local scraper
