@@ -269,7 +269,7 @@ def move_to(name):
                     sort_key[key] += 1
 
         sort_key[name] = new_key
-    _SALTS.set_setting('source_sort_order', utils.make_source_sort_string(sort_key))
+    db_connection.set_setting('source_sort_order', utils.make_source_sort_string(sort_key))
     xbmc.executebuiltin("XBMC.Container.Refresh")
 
 @url_dispatcher.register(MODES.MOVE_SCRAPER, ['name', 'direction', 'other'])
@@ -281,7 +281,7 @@ def move_scraper(name, direction, other):
     elif direction == DIRS.DOWN:
         sort_key[name] -= 1
         sort_key[other] += 1
-    _SALTS.set_setting('source_sort_order', utils.make_source_sort_string(sort_key))
+    db_connection.set_setting('source_sort_order', utils.make_source_sort_string(sort_key))
     xbmc.executebuiltin("XBMC.Container.Refresh")
 
 @url_dispatcher.register(MODES.TOGGLE_ALL)
