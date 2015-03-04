@@ -212,13 +212,13 @@ def scraper_settings():
     _SALTS.add_directory({'mode': MODES.TOGGLE_ALL}, {'title': label}, img=utils.art('scraper.png'), fanart=utils.art('fanart.jpg'))
 
     for i, cls in enumerate(scrapers):
-        label = '%s. %s (Provides: %s)' % (i + 1, cls.get_name(), str(list(cls.provides())).replace("'", ""))
-        label = '%s (Success: %s%%)' % (label, utils.calculate_success(cls.get_name()))
+        label = '%s (Provides: %s)' % (cls.get_name(), str(list(cls.provides())).replace("'", ""))
         if not utils.scraper_enabled(cls.get_name()):
             label = '[COLOR darkred]%s[/COLOR]' % (label)
             toggle_label = 'Enable Scraper'
         else:
             toggle_label = 'Disable Scraper'
+        label = '%s. %s (Success: %s%%)' % (i + 1, label, utils.calculate_success(cls.get_name()))
         liz = xbmcgui.ListItem(label=label, iconImage=utils.art('scraper.png'), thumbnailImage=utils.art('scraper.png'))
         liz.setProperty('fanart_image', utils.art('fanart.jpg'))
         liz.setProperty('IsPlayable', 'false')
