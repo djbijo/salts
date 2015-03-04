@@ -60,7 +60,7 @@ def update_settings():
     cat_count = 1
     old_xml = xml
     classes = scraper.Scraper.__class__.__subclasses__(scraper.Scraper)
-    for cls in classes:
+    for cls in sorted(classes, key=lambda x: x.get_name().upper()):
         new_settings += cls.get_settings()
 
         if len(new_settings) > 90:
