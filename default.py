@@ -1191,7 +1191,7 @@ def set_related_url(mode, video_type, title, year, slug, season='', episode='', 
 @url_dispatcher.register(MODES.RATE, ['section', 'id_type', 'show_id'], ['season', 'episode'])
 def rate_media(section, id_type, show_id, season='', episode=''):
     # disabled until fixes for rating are made in official addon
-    if False and xbmc.getCondVisibility('System.HasAddon(script.trakt)'):
+    if False and id_type == 'imdb' and xbmc.getCondVisibility('System.HasAddon(script.trakt)'):
         run = 'RunScript(script.trakt, action=rate, media_type=%s, remoteid=%s'
         if section == SECTIONS.MOVIES:
             run = (run + ')') % ('movie', show_id)
@@ -1786,7 +1786,11 @@ def make_episode_item(show, episode, show_subs=True, menu_items=None):
     if TOKEN:
         show_id = utils.show_id(show)
         queries = {'mode': MODES.RATE, 'section': SECTIONS.TV, 'season': episode['season'], 'episode': episode['number']}
-        queries.update(show_id)
+        # favor imdb_id for ratings to work with official trakt addon
+        if 'imdb' in show['ids'] and show['ids']['imdb']:
+            queries.update({'id_type': 'imdb', 'show_id': show['ids']['imdb']})
+        else:
+            queries.update(show_id)
         menu_items.append(('Rate on trakt.tv', 'RunPlugin(%s)' % (_SALTS.build_plugin_url(queries))),)
 
         queries = {'mode': MODES.TOGGLE_WATCHED, 'section': SECTIONS.TV, 'season': episode['season'], 'episode': episode['number'], 'watched': watched}
@@ -1861,7 +1865,11 @@ def make_item(section_params, show, menu_items=None):
         menu_items.append(('Add to List', 'RunPlugin(%s)' % (_SALTS.build_plugin_url(queries))),)
 
         queries = {'mode': MODES.RATE, 'section': section_params['section']}
-        queries.update(show_id)
+        # favor imdb_id for ratings to work with official trakt addon
+        if 'imdb' in show['ids'] and show['ids']['imdb']:
+            queries.update({'id_type': 'imdb', 'show_id': show['ids']['imdb']})
+        else:
+            queries.update(show_id)
         menu_items.append(('Rate on trakt.tv', 'RunPlugin(%s)' % (_SALTS.build_plugin_url(queries))),)
 
     queries = {'mode': MODES.ADD_TO_LIBRARY, 'video_type': section_params['video_type'], 'title': show['title'], 'year': show['year'], 'slug': slug}
