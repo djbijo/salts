@@ -67,10 +67,12 @@ class Afdah_Scraper(scraper.Scraper):
             for match in re.finditer('href="([^"]+/embed\d*/[^"]+)', html):
                 url = match.group(1)
                 embed_html = self._http_get(url, cache_limit=.5)
-                r = re.search('write\("([^"]+)', embed_html)
+                r = re.search('{\s*write\("([^"]+)', embed_html)
                 if r:
                     plaintext = self._caesar(r.group(1).decode('base-64'), 13).decode('base-64')
-                    hosters += self._get_links(plaintext)
+                else:
+                    plaintext = embed_html
+                hosters += self._get_links(plaintext)
             
             pattern = 'href="([^"]+)".*play_video.gif'
             for match in re.finditer(pattern, html, re.I):
