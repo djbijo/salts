@@ -342,9 +342,9 @@ class Trakt_API():
                                 break
                             else:
                                 raise TransientTraktError('Temporary Trakt Error: ' + str(e))
-                        elif e.code == 401:
+                        elif e.code == 401 or e.code == 405:
                             if login_retry or url.endswith('login'):
-                                raise
+                                raise TraktError('Login Failed. Incorrect userid/password? (%s)' % (e.code))
                             else:
                                 self.token = self.login()
                                 xbmcaddon.Addon('plugin.video.salts').setSetting('trakt_token', self.token)

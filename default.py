@@ -30,7 +30,7 @@ from addon.common.addon import Addon
 from salts_lib.db_utils import DB_Connection
 from salts_lib.url_dispatcher import URL_Dispatcher
 from salts_lib.srt_scraper import SRT_Scraper
-from salts_lib.trakt_api import Trakt_API, TransientTraktError, TraktNotFoundError
+from salts_lib.trakt_api import Trakt_API, TransientTraktError, TraktNotFoundError, TraktError
 from salts_lib import utils
 from salts_lib import log_utils
 from salts_lib.constants import *
@@ -1934,7 +1934,7 @@ def main(argv=None):
     try:
         mode = _SALTS.queries.get('mode', None)
         url_dispatcher.dispatch(mode, _SALTS.queries)
-    except TransientTraktError as e:
+    except (TransientTraktError, TraktError) as e:
         log_utils.log(str(e), xbmc.LOGERROR)
         builtin = 'XBMC.Notification(%s,%s, 5000, %s)'
         xbmc.executebuiltin(builtin % (_SALTS.get_name(), str(e), ICON_PATH))
