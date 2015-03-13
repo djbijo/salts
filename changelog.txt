@@ -1,3 +1,11 @@
+[B]Version 1.0.0~beta1[/B]
+Fix movie25
+move scraper sort order setting to DB
+Improve scraper sort order directory
+Fix solarmovie scraper
+Fix afdah scraper
+Fix oneclickwatch scraper
+
 [B]Version 0.0.68[/B]
 - Fix invalid characters in folders
 - fix uflix scraper
