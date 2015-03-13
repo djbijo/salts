@@ -133,7 +133,8 @@ class OneClickWatch_Scraper(scraper.Scraper):
     def search(self, video_type, title, year):
         search_url = urlparse.urljoin(self.base_url, '/?s=')
         search_url += urllib.quote_plus(title)
-        html = self._http_get(search_url, cache_limit=.25)
+        headers = {'Referer': self.base_url}
+        html = self._http_get(search_url, headers=headers, cache_limit=.25)
         results = []
         filter_days = datetime.timedelta(days=int(xbmcaddon.Addon().getSetting('%s-filter' % (self.get_name()))))
         today = datetime.date.today()
@@ -169,5 +170,5 @@ class OneClickWatch_Scraper(scraper.Scraper):
                 results.append(result)
         return results
 
-    def _http_get(self, url, cache_limit=8):
-        return super(OneClickWatch_Scraper, self)._cached_http_get(url, self.base_url, self.timeout, cache_limit=cache_limit)
+    def _http_get(self, url, headers=None, cache_limit=8):
+        return super(OneClickWatch_Scraper, self)._cached_http_get(url, self.base_url, self.timeout, headers=headers, cache_limit=cache_limit)
