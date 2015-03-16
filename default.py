@@ -1697,6 +1697,8 @@ def make_season_item(season, info, slug, fanart):
 
     if TOKEN:
         queries = {'mode': MODES.RATE, 'section': SECTIONS.TV, 'season': season['number'], 'id_type': 'slug', 'show_id': slug}
+        # TODO: For Debug purposes
+        queries.update({'id_type': 'imdb', 'show_id': 'tt1520211'})
         menu_items.append(('Rate on trakt.tv', 'RunPlugin(%s)' % (_SALTS.build_plugin_url(queries))),)
 
         queries = {'mode': MODES.TOGGLE_WATCHED, 'section': SECTIONS.TV, 'season': season['number'], 'id_type': 'slug', 'show_id': slug, 'watched': watched}

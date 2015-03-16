@@ -372,7 +372,6 @@ class Trakt_API():
                     raise
 
         response = json.loads(result)
-        print response
 
         if 'status' in response and response['status'] == 'failure':
             if 'message' in response: raise TraktError(response['message'])
