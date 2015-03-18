@@ -23,7 +23,7 @@ import xbmcaddon
 from salts_lib.constants import VIDEO_TYPES
 from salts_lib.db_utils import DB_Connection
 
-BASE_URL = 'http://losmovies.tv'
+BASE_URL = 'http://losmovies.ch'
 
 class LosMovies_Scraper(scraper.Scraper):
     base_url = BASE_URL
@@ -79,6 +79,7 @@ class LosMovies_Scraper(scraper.Scraper):
         search_url = urlparse.urljoin(self.base_url, '/search?type=movies&q=')
         search_url += urllib.quote_plus(title)
         html = self._http_get(search_url, cache_limit=.25)
+        print html
         results = []
         pattern = 'class="movieQuality[^>]+>\s*(.*?)\s*<div\s+class="movieInfo".*?showRowImage">\s*<a\s+href="([^"]+).*?<h4[^>]+>([^<]+)'
         for match in re.finditer(pattern, html, re.DOTALL):
