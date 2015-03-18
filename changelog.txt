@@ -1,10 +1,17 @@
+[B]Version 1.0.0~beta2[/B]
+- handle invalid trakt usernames better
+- Fix related urls when year is None
+- Use the trakt addon for ratings when possible
+- Fix mvl
+- Fix losmovies
+
 [B]Version 1.0.0~beta1[/B]
-Fix movie25
-move scraper sort order setting to DB
-Improve scraper sort order directory
-Fix solarmovie scraper
-Fix afdah scraper
-Fix oneclickwatch scraper
+- Fix movie25
+- move scraper sort order setting to DB
+- Improve scraper sort order directory
+- Fix solarmovie scraper
+- Fix afdah scraper
+- Fix oneclickwatch scraper
 
 [B]Version 0.0.68[/B]
 - Fix invalid characters in folders
