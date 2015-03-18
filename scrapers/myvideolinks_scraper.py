@@ -71,7 +71,7 @@ class MyVidLinks_Scraper(scraper.Scraper):
         return hosters
 
     def __get_movie_links(self, video, views, html):
-        pattern = '<h1><span>([^<]+)'
+        pattern = '<h1>[^>]*>([^<]+)'
         match = re.search(pattern, html)
         q_str = ''
         if match:
@@ -155,7 +155,7 @@ class MyVidLinks_Scraper(scraper.Scraper):
         results = []
         filter_days = datetime.timedelta(days=int(xbmcaddon.Addon().getSetting('%s-filter' % (self.get_name()))))
         today = datetime.date.today()
-        pattern = '<h1><span><a\s+href="([^"]+)"\s+rel="bookmark"\s+title="([^"]+)'
+        pattern = '<h\d+>.*?<a\s+href="([^"]+)"\s+rel="bookmark"\s+title="([^"]+)'
         for match in re.finditer(pattern, html, re.DOTALL):
             url, title = match.groups('')
 
