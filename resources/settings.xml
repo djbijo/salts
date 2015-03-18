@@ -203,7 +203,7 @@
          <setting id="Local_check" type="number" default="0" visible="false"/>
          <setting id="Local-def-quality" type="enum" label="     Default Quality" values="None|Low|Medium|High|HD" default="0" visible="eq(-6,true)"/>
          <setting id="LosMovies-enable" type="bool" label="LosMovies Enabled" default="true" visible="true"/>
-         <setting id="LosMovies-base_url" type="text" label="     Base Url" default="http://losmovies.tv" visible="eq(-1,true)"/>
+         <setting id="LosMovies-base_url" type="text" label="     Base Url" default="http://losmovies.ch" visible="eq(-1,true)"/>
          <setting id="LosMovies-sub_check" type="bool" label="     Include in Page Existence checks?" default="true" visible="eq(-2,true)"/>
          <setting id="LosMovies_try" type="number" default="0" visible="false"/>
          <setting id="LosMovies_fail" type="number" default="0" visible="false"/>
