@@ -125,4 +125,4 @@ class HDTVShows_Scraper(scraper.Scraper):
         url = urlparse.urljoin(self.base_url, '/post.php')
         data = {'type': 'checklogin'}
         html = super(HDTVShows_Scraper, self)._cached_http_get(url, self.base_url, self.timeout, data=data, cache_limit=0)
-        return html == self.username
+        return html.startswith(self.username)
