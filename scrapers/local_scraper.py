@@ -94,8 +94,7 @@ class Local_Scraper(scraper.Scraper):
         cmd = '{"jsonrpc": "2.0", "method": "VideoLibrary.GetEpisodes", "params": {"tvshowid": %s, "season": %s, "filter": {"field": "%s", "operator": "is", "value": "%s"}, \
         "limits": { "start" : 0, "end": 25 }, "properties" : ["title", "season", "episode", "file", "streamdetails"], "sort": { "order": "ascending", "method": "label", "ignorearticle": true }}, "id": "libTvShows"}'
         base_url = 'video_type=%s&id=%s'
-        url = None
-        filename = ''
+        episodes = []
 
         force_title = self._force_title(video)
 
@@ -105,9 +104,7 @@ class Local_Scraper(scraper.Scraper):
             meta = json.loads(meta)
             log_utils.log('Episode Meta: %s' % (meta), xbmc.LOGDEBUG)
             if 'result' in meta and 'episodes' in meta['result']:
-                episode = meta['result']['episodes'][0]
-                url = base_url % (video.video_type, episode['episodeid'])
-                filename = episode['file']
+                episodes = meta['result']['episodes']
         else:
             log_utils.log('Skipping S&E matching as title search is forced on: %s' % (video.slug), xbmc.LOGDEBUG)
 
@@ -117,12 +114,13 @@ class Local_Scraper(scraper.Scraper):
             meta = json.loads(meta)
             log_utils.log('Episode Title Meta: %s' % (meta), xbmc.LOGDEBUG)
             if 'result' in meta and 'episodes' in meta['result']:
-                episode = meta['result']['episodes'][0]
-                url = base_url % (video.video_type, episode['episodeid'])
-                filename = episode['file']
+                episodes = meta['result']['episodes']
 
-        if not filename.endswith('.strm'):
-            return url
+        for episode in episodes:
+            if episode['file'].endswith('.strm'):
+                continue
+            
+            return base_url % (video.video_type, episode['episodeid'])
 
     @classmethod
     def get_settings(cls):
