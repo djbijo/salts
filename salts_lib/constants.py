@@ -30,7 +30,7 @@ MODES = __enum(MAIN='main', BROWSE='browse', TRENDING='trending', RECOMMEND='rec
            RES_SETTINGS='resolver_settings', ADDON_SETTINGS='addon_settings', TOGGLE_ALL='toggle_all', MOVE_TO='move_to', REM_FROM_COLL='rem_from_collection',
            URL_EXISTS='url_exists', RECENT_SEARCH='recent_search', SAVED_SEARCHES='saved_searches', SAVE_SEARCH='save_search', DELETE_SEARCH='delete_search', SET_VIEW='set_view',
            SETTINGS='settings', SHOW_VIEWS='show_views', BROWSE_VIEW='browse_view', BROWSE_URLS='browse_urls', DELETE_URL='delete_url', DOWNLOAD_SOURCE='download_source',
-           DIRECT_DOWNLOAD='direct_download', POPULAR='popular', RECENT='recent')
+           DIRECT_DOWNLOAD='direct_download', POPULAR='popular', RECENT='recent', DELETE_RECENT='delete_recent', CLEAR_RECENT='clear_recent')
 SECTIONS = __enum(TV='TV', MOVIES='Movies')
 VIDEO_TYPES = __enum(TVSHOW='TV Show', MOVIE='Movie', EPISODE='Episode', SEASON='Season')
 CONTENT_TYPES = __enum(TVSHOWS='tvshows', MOVIES='movies', SEASONS='seasons', EPISODES='episodes')
