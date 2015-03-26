@@ -50,7 +50,10 @@ class CartoonHD_Scraper(scraper.Scraper):
         return link
 
     def format_source_label(self, item):
-        return '[%s] %s' % (item['quality'], item['host'])
+        if 'resolution' in item:
+            return '[%s] (%s) %s' % (item['quality'], item['resolution'], item['host'])
+        else:
+            return '[%s] %s' % (item['quality'], item['host'])
 
     def get_sources(self, video):
         source_url = self.get_url(video)
@@ -59,11 +62,29 @@ class CartoonHD_Scraper(scraper.Scraper):
             url = urlparse.urljoin(self.base_url, source_url)
             html = self._http_get(url, cache_limit=.5)
 
+            gv_qualities = re.findall('googlevideo.com\s*-\s*(\d+)p', html)
+            
             pattern = '<IFRAME\s+SRC="([^"]+)'
+            gv_index = 0
             for match in re.finditer(pattern, html, re.DOTALL | re.I):
                 url = match.group(1)
                 host = urlparse.urlsplit(url).hostname.lower()
-                source = {'multi-part': False, 'url': url, 'host': host, 'class': self, 'quality': self._get_quality(video, host, QUALITIES.HIGH), 'views': None, 'rating': None, 'direct': False}
+                resolution = None
+                if 'googlevideo' in host:
+                    direct = True
+                    host = 'CartoonHD'
+                    if gv_index < len(gv_qualities):
+                        resolution = gv_qualities[gv_index]
+                        quality = self._height_get_quality(resolution)
+                    else:
+                        quality = QUALITIES.HIGH
+                    gv_index += 1
+                else:
+                    direct = False
+                    quality = QUALITIES.HIGH
+
+                source = {'multi-part': False, 'url': url, 'host': host, 'class': self, 'quality': self._get_quality(video, host, quality), 'views': None, 'rating': None, 'direct': direct}
+                if resolution is not None: source['resolution'] = '%sp' % (resolution)
                 sources.append(source)
 
         return sources
