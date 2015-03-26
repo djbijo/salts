@@ -133,6 +133,12 @@
          <setting id="afdah_try" type="number" default="0" visible="false"/>
          <setting id="afdah_fail" type="number" default="0" visible="false"/>
          <setting id="afdah_check" type="number" default="0" visible="false"/>
+         <setting id="CartoonHD-enable" type="bool" label="CartoonHD Enabled" default="true" visible="true"/>
+         <setting id="CartoonHD-base_url" type="text" label="     Base Url" default="http://www.cartoonhd.is" visible="eq(-1,true)"/>
+         <setting id="CartoonHD-sub_check" type="bool" label="     Include in Page Existence checks?" default="true" visible="eq(-2,true)"/>
+         <setting id="CartoonHD_try" type="number" default="0" visible="false"/>
+         <setting id="CartoonHD_fail" type="number" default="0" visible="false"/>
+         <setting id="CartoonHD_check" type="number" default="0" visible="false"/>
          <setting id="ch131-enable" type="bool" label="ch131 Enabled" default="true" visible="true"/>
          <setting id="ch131-base_url" type="text" label="     Base Url" default="http://www.ch131.me" visible="eq(-1,true)"/>
          <setting id="ch131-sub_check" type="bool" label="     Include in Page Existence checks?" default="true" visible="eq(-2,true)"/>
@@ -208,15 +214,15 @@
          <setting id="LosMovies_try" type="number" default="0" visible="false"/>
          <setting id="LosMovies_fail" type="number" default="0" visible="false"/>
          <setting id="LosMovies_check" type="number" default="0" visible="false"/>
+    </category>
+
+	<category label="Scrapers 2">
          <setting id="MerDB-enable" type="bool" label="MerDB Enabled" default="true" visible="true"/>
          <setting id="MerDB-base_url" type="text" label="     Base Url" default="http://merdb.cn" visible="eq(-1,true)"/>
          <setting id="MerDB-sub_check" type="bool" label="     Include in Page Existence checks?" default="true" visible="eq(-2,true)"/>
          <setting id="MerDB_try" type="number" default="0" visible="false"/>
          <setting id="MerDB_fail" type="number" default="0" visible="false"/>
          <setting id="MerDB_check" type="number" default="0" visible="false"/>
-    </category>
-
-	<category label="Scrapers 2">
          <setting id="movie25-enable" type="bool" label="movie25 Enabled" default="true" visible="true"/>
          <setting id="movie25-base_url" type="text" label="     Base Url" default="http://movie25.cm" visible="eq(-1,true)"/>
          <setting id="movie25-sub_check" type="bool" label="     Include in Page Existence checks?" default="true" visible="eq(-2,true)"/>
@@ -303,15 +309,15 @@
          <setting id="pftv_try" type="number" default="0" visible="false"/>
          <setting id="pftv_fail" type="number" default="0" visible="false"/>
          <setting id="pftv_check" type="number" default="0" visible="false"/>
+    </category>
+
+	<category label="Scrapers 3">
          <setting id="PrimeWire-enable" type="bool" label="PrimeWire Enabled" default="true" visible="true"/>
          <setting id="PrimeWire-base_url" type="text" label="     Base Url" default="http://www.primewire.ag" visible="eq(-1,true)"/>
          <setting id="PrimeWire-sub_check" type="bool" label="     Include in Page Existence checks?" default="true" visible="eq(-2,true)"/>
          <setting id="PrimeWire_try" type="number" default="0" visible="false"/>
          <setting id="PrimeWire_fail" type="number" default="0" visible="false"/>
          <setting id="PrimeWire_check" type="number" default="0" visible="false"/>
-    </category>
-
-	<category label="Scrapers 3">
          <setting id="RLSSource.net-enable" type="bool" label="RLSSource.net Enabled" default="true" visible="true"/>
          <setting id="RLSSource.net-base_url" type="text" label="     Base Url" default="http://rlssource.net" visible="eq(-1,true)"/>
          <setting id="RLSSource.net-sub_check" type="bool" label="     Include in Page Existence checks?" default="false" visible="eq(-2,true)"/>
@@ -401,15 +407,15 @@
          <setting id="wso.ch_fail" type="number" default="0" visible="false"/>
          <setting id="wso.ch_check" type="number" default="0" visible="false"/>
          <setting id="wso.ch-max_pages" type="slider" range="1,50" option="int" label="     Maximum Pages" default="1" visible="eq(-6,true)"/>
+    </category>
+	
+    <category label="Scrapers 4">
          <setting id="yify.tv-enable" type="bool" label="yify.tv Enabled" default="true" visible="true"/>
          <setting id="yify.tv-base_url" type="text" label="     Base Url" default="http://yify.tv" visible="eq(-1,true)"/>
          <setting id="yify.tv-sub_check" type="bool" label="     Include in Page Existence checks?" default="true" visible="eq(-2,true)"/>
          <setting id="yify.tv_try" type="number" default="0" visible="false"/>
          <setting id="yify.tv_fail" type="number" default="0" visible="false"/>
          <setting id="yify.tv_check" type="number" default="0" visible="false"/>
-    </category>
-	
-    <category label="Scrapers 4">
          <setting id="zumvo.com-enable" type="bool" label="zumvo.com Enabled" default="true" visible="true"/>
          <setting id="zumvo.com-base_url" type="text" label="     Base Url" default="http://zumvo.com" visible="eq(-1,true)"/>
          <setting id="zumvo.com-sub_check" type="bool" label="     Include in Page Existence checks?" default="true" visible="eq(-2,true)"/>
