@@ -151,6 +151,12 @@
          <setting id="clickplay.to_try" type="number" default="0" visible="false"/>
          <setting id="clickplay.to_fail" type="number" default="0" visible="false"/>
          <setting id="clickplay.to_check" type="number" default="0" visible="false"/>
+         <setting id="cmz-enable" type="bool" label="cmz Enabled" default="true" visible="true"/>
+         <setting id="cmz-base_url" type="text" label="     Base Url" default="http://coolmoviezone.org" visible="eq(-1,true)"/>
+         <setting id="cmz-sub_check" type="bool" label="     Include in Page Existence checks?" default="true" visible="eq(-2,true)"/>
+         <setting id="cmz_try" type="number" default="0" visible="false"/>
+         <setting id="cmz_fail" type="number" default="0" visible="false"/>
+         <setting id="cmz_check" type="number" default="0" visible="false"/>
          <setting id="DirectDownload.tv-enable" type="bool" label="DirectDownload.tv Enabled" default="true" visible="true"/>
          <setting id="DirectDownload.tv-base_url" type="text" label="     Base Url" default="http://directdownload.tv" visible="eq(-1,true)"/>
          <setting id="DirectDownload.tv-sub_check" type="bool" label="     Include in Page Existence checks?" default="false" visible="eq(-2,true)"/>
@@ -208,15 +214,15 @@
          <setting id="Local_fail" type="number" default="0" visible="false"/>
          <setting id="Local_check" type="number" default="0" visible="false"/>
          <setting id="Local-def-quality" type="enum" label="     Default Quality" values="None|Low|Medium|High|HD" default="0" visible="eq(-6,true)"/>
+    </category>
+
+	<category label="Scrapers 2">
          <setting id="LosMovies-enable" type="bool" label="LosMovies Enabled" default="true" visible="true"/>
          <setting id="LosMovies-base_url" type="text" label="     Base Url" default="http://losmovies.ch" visible="eq(-1,true)"/>
          <setting id="LosMovies-sub_check" type="bool" label="     Include in Page Existence checks?" default="true" visible="eq(-2,true)"/>
          <setting id="LosMovies_try" type="number" default="0" visible="false"/>
          <setting id="LosMovies_fail" type="number" default="0" visible="false"/>
          <setting id="LosMovies_check" type="number" default="0" visible="false"/>
-    </category>
-
-	<category label="Scrapers 2">
          <setting id="MerDB-enable" type="bool" label="MerDB Enabled" default="true" visible="true"/>
          <setting id="MerDB-base_url" type="text" label="     Base Url" default="http://merdb.cn" visible="eq(-1,true)"/>
          <setting id="MerDB-sub_check" type="bool" label="     Include in Page Existence checks?" default="true" visible="eq(-2,true)"/>
@@ -303,15 +309,15 @@
          <setting id="ororo.tv-username" type="text" label="     Username" default="" visible="eq(-2,true)"/>
          <setting id="ororo.tv-password" type="text" label="     Password" option="hidden" default="" visible="eq(-3,true)"/>
          <setting id="ororo.tv-include_paid" type="bool" label="     Include Paid content" default="false" visible="eq(-4,true)"/>
+    </category>
+
+	<category label="Scrapers 3">
          <setting id="pftv-enable" type="bool" label="pftv Enabled" default="true" visible="true"/>
          <setting id="pftv-base_url" type="text" label="     Base Url" default="http://projectfreetv.ch" visible="eq(-1,true)"/>
          <setting id="pftv-sub_check" type="bool" label="     Include in Page Existence checks?" default="true" visible="eq(-2,true)"/>
          <setting id="pftv_try" type="number" default="0" visible="false"/>
          <setting id="pftv_fail" type="number" default="0" visible="false"/>
          <setting id="pftv_check" type="number" default="0" visible="false"/>
-    </category>
-
-	<category label="Scrapers 3">
          <setting id="PrimeWire-enable" type="bool" label="PrimeWire Enabled" default="true" visible="true"/>
          <setting id="PrimeWire-base_url" type="text" label="     Base Url" default="http://www.primewire.ag" visible="eq(-1,true)"/>
          <setting id="PrimeWire-sub_check" type="bool" label="     Include in Page Existence checks?" default="true" visible="eq(-2,true)"/>
@@ -400,6 +406,9 @@
          <setting id="wmo.ch_try" type="number" default="0" visible="false"/>
          <setting id="wmo.ch_fail" type="number" default="0" visible="false"/>
          <setting id="wmo.ch_check" type="number" default="0" visible="false"/>
+    </category>
+	
+    <category label="Scrapers 4">
          <setting id="wso.ch-enable" type="bool" label="wso.ch Enabled" default="true" visible="true"/>
          <setting id="wso.ch-base_url" type="text" label="     Base Url" default="http://watchseries-online.ch" visible="eq(-1,true)"/>
          <setting id="wso.ch-sub_check" type="bool" label="     Include in Page Existence checks?" default="true" visible="eq(-2,true)"/>
@@ -407,9 +416,6 @@
          <setting id="wso.ch_fail" type="number" default="0" visible="false"/>
          <setting id="wso.ch_check" type="number" default="0" visible="false"/>
          <setting id="wso.ch-max_pages" type="slider" range="1,50" option="int" label="     Maximum Pages" default="1" visible="eq(-6,true)"/>
-    </category>
-	
-    <category label="Scrapers 4">
          <setting id="yify.tv-enable" type="bool" label="yify.tv Enabled" default="true" visible="true"/>
          <setting id="yify.tv-base_url" type="text" label="     Base Url" default="http://yify.tv" visible="eq(-1,true)"/>
          <setting id="yify.tv-sub_check" type="bool" label="     Include in Page Existence checks?" default="true" visible="eq(-2,true)"/>
