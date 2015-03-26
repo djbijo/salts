@@ -110,11 +110,16 @@ class CartoonHD_Scraper(scraper.Scraper):
                 media_type = 'MOVIE'
 
             if html:
-                js_data = json.loads(html)
-                for item in js_data:
-                    if item['meta'].upper().startswith(media_type):
-                        result = {'title': item['title'], 'url': item['permalink'].replace(self.base_url, ''), 'year': ''}
-                        results.append(result)
+                try:
+                    js_data = json.loads(html)
+                except ValueError:
+                    log_utils.log('No JSON returned: %s' % (search_url), xbmc.LOGWARNING)
+                else:
+                    for item in js_data:
+                        if item['meta'].upper().startswith(media_type):
+                            result = {'title': item['title'], 'url': item['permalink'].replace(self.base_url, ''), 'year': ''}
+                            results.append(result)
+
         else:
             log_utils.log('Unable to locate CartoonHD token', xbmc.LOGWARNING)
         return results
