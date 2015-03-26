@@ -75,7 +75,6 @@ class PFTV_Scraper(scraper.Scraper):
         url = urlparse.urljoin(self.base_url, show_url)
         html = self._http_get(url, cache_limit=8)
         season_pattern = 'href="([^"]+season-%s/)' % (video.season)
-        print season_pattern
         match = re.search(season_pattern, html)
         if match:
             season_url = match.group(1)

@@ -89,7 +89,6 @@ class CartoonHD_Scraper(scraper.Scraper):
                 media_type = 'MOVIE'
 
             if html:
-                print html
                 js_data = json.loads(html)
                 for item in js_data:
                     if item['meta'].upper().startswith(media_type):
