@@ -24,8 +24,6 @@ import xbmcaddon
 from salts_lib import log_utils
 from salts_lib.constants import VIDEO_TYPES
 from salts_lib.db_utils import DB_Connection
-from salts_lib.constants import QUALITIES
-from salts_lib.constants import Q_ORDER
 
 BASE_URL = 'http://download.myvideolinks.eu'
 
@@ -105,45 +103,7 @@ class MyVidLinks_Scraper(scraper.Scraper):
         return hosters
 
     def get_url(self, video):
-        url = None
-        result = self.db_connection.get_related_url(video.video_type, video.title, video.year, self.get_name(), video.season, video.episode)
-        if result:
-            url = result[0][0]
-            log_utils.log('Got local related url: |%s|%s|%s|%s|%s|' % (video.video_type, video.title, video.year, self.get_name(), url))
-        else:
-            select = int(xbmcaddon.Addon().getSetting('%s-select' % (self.get_name())))
-            if video.video_type == VIDEO_TYPES.EPISODE:
-                if not self._force_title(video):
-                    search_title = '%s S%02dE%02d' % (video.title, int(video.season), int(video.episode))
-                else:
-                    if not video.ep_title: return None
-                    search_title = '%s %s' % (video.title, video.ep_title)
-            else:
-                search_title = '%s %s' % (video.title, video.year)
-            results = self.search(video.video_type, search_title, video.year)
-            if results:
-                # episodes don't tell us the quality on the search screen so just return the 1st result
-                if select == 0 or video.video_type == VIDEO_TYPES.EPISODE:
-                    best_result = results[0]
-                else:
-                    best_qorder = 0
-                    best_qstr = ''
-                    for result in results:
-                        match = re.search('\[(.*)\]$', result['title'])
-                        if match:
-                            q_str = match.group(1)
-                            quality = self._blog_get_quality(video, q_str, '')
-                            # print 'result: |%s|%s|%s|%s|' % (result, q_str, quality, Q_ORDER[quality])
-                            if Q_ORDER[quality] >= best_qorder:
-                                if Q_ORDER[quality] > best_qorder or (quality == QUALITIES.HD and '1080' in q_str and '1080' not in best_qstr):
-                                    # print 'Setting best as: |%s|%s|%s|%s|' % (result, q_str, quality, Q_ORDER[quality])
-                                    best_qstr = q_str
-                                    best_result = result
-                                    best_qorder = Q_ORDER[quality]
-
-                url = best_result['url']
-                self.db_connection.set_related_url(video.video_type, video.title, video.year, self.get_name(), url)
-        return url
+        return self._blog_get_url(video)
 
     @classmethod
     def get_settings(cls):

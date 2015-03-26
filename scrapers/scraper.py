@@ -332,6 +332,53 @@ class Scraper(object):
         # log_utils.log('In title: |%s| Out title: |%s|' % (title,new_title), xbmc.LOGDEBUG)
         return new_title
 
+    def _blog_get_url(self, video, delim='.'):
+        url = None
+        result = self.db_connection.get_related_url(video.video_type, video.title, video.year, self.get_name(), video.season, video.episode)
+        if result:
+            url = result[0][0]
+            log_utils.log('Got local related url: |%s|%s|%s|%s|%s|' % (video.video_type, video.title, video.year, self.get_name(), url))
+        else:
+            select = int(xbmcaddon.Addon().getSetting('%s-select' % (self.get_name())))
+            if video.video_type == VIDEO_TYPES.EPISODE:
+                temp_title = re.sub('[^A-Za-z0-9 ]', '', video.title)
+                if not self._force_title(video):
+                    search_title = '%s S%02dE%02d' % (temp_title, int(video.season), int(video.episode))
+                    fallback_search = '%s %s' % (temp_title, video.ep_airdate.strftime('%Y{0}%m{0}%d'.format(delim)))
+                else:
+                    if not video.ep_title: return None
+                    search_title = '%s %s' % (temp_title, video.ep_title)
+                    fallback_search = ''
+            else:
+                search_title = '%s %s' % (video.title, video.year)
+                fallback_search = ''
+
+            results = self.search(video.video_type, search_title, video.year)
+            if not results and fallback_search:
+                results = self.search(video.video_type, fallback_search, video.year)
+            if results:
+                if select == 0:
+                    best_result = results[0]
+                else:
+                    best_qorder = 0
+                    best_qstr = ''
+                    for result in results:
+                        match = re.search('\[(.*)\]$', result['title'])
+                        if match:
+                            q_str = match.group(1)
+                            quality = self._blog_get_quality(video, q_str, '')
+                            # print 'result: |%s|%s|%s|%s|' % (result, q_str, quality, Q_ORDER[quality])
+                            if Q_ORDER[quality] >= best_qorder:
+                                if Q_ORDER[quality] > best_qorder or (quality == QUALITIES.HD and '1080' in q_str and '1080' not in best_qstr):
+                                    # print 'Setting best as: |%s|%s|%s|%s|' % (result, q_str, quality, Q_ORDER[quality])
+                                    best_qstr = q_str
+                                    best_result = result
+                                    best_qorder = Q_ORDER[quality]
+
+                url = best_result['url']
+                self.db_connection.set_related_url(video.video_type, video.title, video.year, self.get_name(), url)
+        return url
+
     def _blog_get_quality(self, video, q_str, host):
         """
         Use the q_str to determine the post quality; then use the host to determine host quality
