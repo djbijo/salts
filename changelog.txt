@@ -1,3 +1,12 @@
+[B]Version 1.0.0~beta3[/B]
+- Fix hdtvshows scraper
+- Improve local scraper
+- Add option to clear recent searches
+- Improve blog scrapers
+- Add cartoonhd scraper
+- Add coolmoviezone scraper
+- Add movienight scraper (depends on new urlresolver)
+
 [B]Version 1.0.0~beta2[/B]
 - handle invalid trakt usernames better
 - Fix related urls when year is None
