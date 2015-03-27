@@ -82,7 +82,8 @@ class MovieStorm_Scraper(scraper.Scraper):
 
     def search(self, video_type, title, year):
         url = urlparse.urljoin(self.base_url, '/search?q=%s&go=Search' % urllib.quote_plus(title))
-        html = self._http_get(url, cache_limit=8)
+        data = {'q': urllib.quote_plus(title), 'go': 'Search'}
+        html = self._http_get(url, data=data, cache_limit=8)
 
         results = []
         pattern = 'class="movie_box.*?href="([^"]+).*?<h1>([^<]+)'
