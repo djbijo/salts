@@ -74,9 +74,18 @@ class DirectDownload_Scraper(scraper.Scraper):
                     match_quality = temp_quality.split(',')
 
                 import urlresolver
+                sxe_str = '.S%02dE%02d.' % (int(video.season), int(video.episode))
+                airdate_str = video.ep_airdate.strftime('.%Y.%m.%d.')
                 for result in js_result:
+                    if sxe_str not in result['release'] and airdate_str not in result['release']:
+                        continue
+                    
+                    print result
                     if result['quality'] in match_quality:
                         for link in result['links']:
+                            if re.search('\.rar(\.|$)', link['url']):
+                                continue
+                            
                             # validate url since host validation fails for real-debrid; mark links direct to avoid unusable check
                             if urlresolver.HostedMediaFile(link['url']):
                                 hostname = urlparse.urlparse(link['url']).hostname
@@ -93,14 +102,19 @@ class DirectDownload_Scraper(scraper.Scraper):
             url = result[0][0]
             log_utils.log('Got local related url: |%s|%s|%s|%s|%s|' % (video.video_type, video.title, video.year, self.get_name(), url))
         else:
+            date_match = False
             search_title = '%s S%02dE%02d' % (video.title, int(video.season), int(video.episode))
             results = self.search(video.video_type, search_title, '')
             if not results and video.ep_airdate is not None:
                 search_title = '%s %s' % (video.title, video.ep_airdate.strftime('%Y.%m.%d'))
                 results = self.search(video.video_type, search_title, '')
+                date_match = True
 
             best_q_index = -1
             for result in results:
+                if date_match and video.ep_airdate.strftime('%Y.%m.%d') not in result['title']:
+                    continue
+                
                 if Q_DICT[result['quality']] > best_q_index:
                     best_q_index = Q_DICT[result['quality']]
                     url = result['url']
