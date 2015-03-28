@@ -80,7 +80,6 @@ class DirectDownload_Scraper(scraper.Scraper):
                     if sxe_str not in result['release'] and airdate_str not in result['release']:
                         continue
                     
-                    print result
                     if result['quality'] in match_quality:
                         for link in result['links']:
                             if re.search('\.rar(\.|$)', link['url']):
