@@ -1651,7 +1651,7 @@ def make_dir_from_cal(mode, start_date, days):
     try: start_date = datetime.datetime.strptime(start_date, '%Y-%m-%d')
     except TypeError: start_date = datetime.datetime(*(time.strptime(start_date, '%Y-%m-%d')[0:6]))
     last_week = start_date - datetime.timedelta(days=7)
-    next_week = start_date + datetime.timedelta(days=8)
+    next_week = start_date + datetime.timedelta(days=7)
     last_str = datetime.datetime.strftime(last_week, '%Y-%m-%d')
     next_str = datetime.datetime.strftime(next_week, '%Y-%m-%d')
 
