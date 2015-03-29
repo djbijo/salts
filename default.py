@@ -1651,7 +1651,7 @@ def make_dir_from_cal(mode, start_date, days):
     try: start_date = datetime.datetime.strptime(start_date, '%Y-%m-%d')
     except TypeError: start_date = datetime.datetime(*(time.strptime(start_date, '%Y-%m-%d')[0:6]))
     last_week = start_date - datetime.timedelta(days=7)
-    next_week = start_date + datetime.timedelta(days=7)
+    next_week = start_date + datetime.timedelta(days=8)
     last_str = datetime.datetime.strftime(last_week, '%Y-%m-%d')
     next_str = datetime.datetime.strftime(next_week, '%Y-%m-%d')
 
@@ -1674,41 +1674,40 @@ def make_dir_from_cal(mode, start_date, days):
                     watched[slug][season['number']][episode['number']] = True
 
     totalItems = len(days)
-    for day in sorted(days.items()):
-        for item in day[1]:
-            episode = item['episode']
-            show = item['show']
-            fanart = show['images']['fanart']['full']
-            utc_secs = utils.iso_2_utc(episode['first_aired'])
-            show_date = datetime.date.fromtimestamp(utc_secs)
+    for item in days:
+        episode = item['episode']
+        show = item['show']
+        fanart = show['images']['fanart']['full']
+        utc_secs = utils.iso_2_utc(episode['first_aired'])
+        show_date = datetime.date.fromtimestamp(utc_secs)
 
-            try: episode['watched'] = watched[show['ids']['slug']][episode['season']][episode['number']]
-            except: episode['watched'] = False
+        try: episode['watched'] = watched[show['ids']['slug']][episode['season']][episode['number']]
+        except: episode['watched'] = False
 
-            if show_date < start_date.date():
-                log_utils.log('Skipping show before start: |%s| before |%s|' % (show_date, start_date.date()), xbmc.LOGDEBUG)
-                continue
-            elif show_date > next_week.date():
-                log_utils.log('Stopping because show after end: |%s| before |%s|' % (show_date, next_week.date()), xbmc.LOGDEBUG)
-                break
+        if show_date < start_date.date():
+            log_utils.log('Skipping show date |%s| before start: |%s|' % (show_date, start_date.date()), xbmc.LOGDEBUG)
+            continue
+        elif show_date >= next_week.date():
+            log_utils.log('Stopping because show date |%s| >= end: |%s|' % (show_date, next_week.date()), xbmc.LOGDEBUG)
+            break
 
-            date = utils.make_day(datetime.date.fromtimestamp(utc_secs).isoformat())
-            if _SALTS.get_setting('calendar_time') != '0':
-                date_time = '%s@%s' % (date, utils.make_time(utc_secs))
-            else:
-                date_time = date
+        date = utils.make_day(datetime.date.fromtimestamp(utc_secs).isoformat())
+        if _SALTS.get_setting('calendar_time') != '0':
+            date_time = '%s@%s' % (date, utils.make_time(utc_secs))
+        else:
+            date_time = date
 
-            menu_items = []
-            queries = {'mode': MODES.SEASONS, 'slug': show['ids']['slug'], 'fanart': fanart}
-            menu_items.append(('Browse Seasons', 'Container.Update(%s)' % (_SALTS.build_plugin_url(queries))),)
+        menu_items = []
+        queries = {'mode': MODES.SEASONS, 'slug': show['ids']['slug'], 'fanart': fanart}
+        menu_items.append(('Browse Seasons', 'Container.Update(%s)' % (_SALTS.build_plugin_url(queries))),)
 
-            liz, liz_url = make_episode_item(show, episode, show_subs=False, menu_items=menu_items)
-            label = liz.getLabel()
-            label = '[[COLOR deeppink]%s[/COLOR]] %s - %s' % (date_time, show['title'], label.decode('utf-8', 'replace'))
-            if episode['season'] == 1 and episode['number'] == 1:
-                label = '[COLOR green]%s[/COLOR]' % (label)
-            liz.setLabel(label)
-            xbmcplugin.addDirectoryItem(int(sys.argv[1]), liz_url, liz, isFolder=(liz.getProperty('isPlayable') != 'true'), totalItems=totalItems)
+        liz, liz_url = make_episode_item(show, episode, show_subs=False, menu_items=menu_items)
+        label = liz.getLabel()
+        label = '[[COLOR deeppink]%s[/COLOR]] %s - %s' % (date_time, show['title'], label.decode('utf-8', 'replace'))
+        if episode['season'] == 1 and episode['number'] == 1:
+            label = '[COLOR green]%s[/COLOR]' % (label)
+        liz.setLabel(label)
+        xbmcplugin.addDirectoryItem(int(sys.argv[1]), liz_url, liz, isFolder=(liz.getProperty('isPlayable') != 'true'), totalItems=totalItems)
 
     liz = xbmcgui.ListItem(label='Next Week >>', iconImage=utils.art('next.png'), thumbnailImage=utils.art('next.png'))
     liz.setProperty('fanart_image', utils.art('fanart.jpg'))

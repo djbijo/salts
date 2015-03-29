@@ -158,19 +158,19 @@ class Trakt_API():
 #         return self.__call_trakt(url)
 #
     def get_premieres(self, start_date=None, cached=True):
-        url = '/calendars/shows/premieres'
+        url = '/calendars/all/shows/premieres'
         if start_date: url += '/%s' % (start_date)
         params = {'extended': 'full,images', 'auth': False}
         return self.__call_trakt(url, params=params, auth=False, cache_limit=24, cached=cached)
 
     def get_calendar(self, start_date=None, cached=True):
-        url = '/calendars/shows'
+        url = '/calendars/all/shows'
         if start_date: url += '/%s' % (start_date)
         params = {'extended': 'full,images', 'auth': False}
         return self.__call_trakt(url, params=params, auth=False, cache_limit=24, cached=cached)
 
     def get_my_calendar(self, start_date=None, cached=True):
-        url = '/calendars/shows'
+        url = '/calendars/my/shows'
         if start_date: url += '/%s' % (start_date)
         params = {'extended': 'full,images', 'auth': True}
         return self.__call_trakt(url, params=params, auth=True, cache_limit=24, cached=cached)
