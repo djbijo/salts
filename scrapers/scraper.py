@@ -28,6 +28,7 @@ import re
 import time
 from StringIO import StringIO
 import gzip
+import datetime
 from salts_lib import log_utils
 from salts_lib.db_utils import DB_Connection
 from salts_lib.constants import VIDEO_TYPES
@@ -332,6 +333,57 @@ class Scraper(object):
         # log_utils.log('In title: |%s| Out title: |%s|' % (title,new_title), xbmc.LOGDEBUG)
         return new_title
 
+    def _blog_proc_results(self, html, post_pattern, date_format, video_type, title, year):
+        results = []
+        match = re.search('(.*?)\s*S\d+E\d+\s*', title)
+        if match:
+            show_title = match.group(1)
+        else:
+            match = re.search('(.*?)\s*\d{4}\.\d{2}\.\d{2}\s*', title)
+            if match:
+                show_title = match.group(1)
+            else:
+                show_title = title
+        norm_title = self._normalize_title(show_title)
+
+        filter_days = datetime.timedelta(days=int(xbmcaddon.Addon().getSetting('%s-filter' % (self.get_name()))))
+        today = datetime.date.today()
+        for match in re.finditer(post_pattern, html, re.DOTALL):
+            post_data = match.groupdict()
+            post_title = post_data['post_title']
+
+            if filter_days:
+                try: post_date = datetime.datetime.strptime(post_data['date'], date_format).date()
+                except TypeError: post_date = datetime.datetime(*(time.strptime(post_data['date'], date_format)[0:6])).date()
+                if today - post_date > filter_days:
+                    continue
+
+            match_year = ''
+            match_title = ''
+            post_title = post_title.replace('&#8211;', '-')
+            post_title = post_title.replace('&#8217;', "'")
+            if video_type == VIDEO_TYPES.MOVIE:
+                match = re.search('(.*?)\s*[\[(]?(\d{4})[)\]]?\s*(.*)', post_title)
+                if match:
+                    match_title, match_year, extra_title = match.groups()
+                    full_title = '%s [%s]' % (match_title, extra_title)
+            else:
+                match = re.search('(.*?)\s*S\d+E\d+\s*(.*)', post_title)
+                if match:
+                    match_title, extra_title = match.groups()
+                    full_title = '%s [%s]' % (match_title, extra_title)
+                else:
+                    match = re.search('(.*?)\s*\d{4}\.\d{2}\.\d{2}\s*(.*)', post_title)
+                    if match:
+                        match_title, extra_title = match.groups()
+                        full_title = '%s [%s]' % (match_title, extra_title)
+
+            match_norm_title = self._normalize_title(match_title)
+            if (match_norm_title in norm_title or norm_title in match_norm_title) and (not year or not match_year or year == match_year):
+                result = {'url': post_data['url'].replace(self.base_url, ''), 'title': full_title, 'year': match_year}
+                results.append(result)
+        return results
+    
     def _blog_get_url(self, video, delim='.'):
         url = None
         result = self.db_connection.get_related_url(video.video_type, video.title, video.year, self.get_name(), video.season, video.episode)

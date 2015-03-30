@@ -19,13 +19,10 @@ import scraper
 import urllib
 import urlparse
 import re
-import datetime
 import xbmcaddon
 from salts_lib import log_utils
 from salts_lib.constants import VIDEO_TYPES
 from salts_lib.db_utils import DB_Connection
-from salts_lib.constants import QUALITIES
-from salts_lib.constants import Q_ORDER
 
 BASE_URL = 'http://rlssource.net'
 
@@ -85,37 +82,15 @@ class RLSSource_Scraper(scraper.Scraper):
         settings = cls._disable_sub_check(settings)
         name = cls.get_name()
         settings.append('         <setting id="%s-filter" type="slider" range="0,180" option="int" label="     Filter results older than (0=No Filter) (days)" default="30" visible="eq(-6,true)"/>' % (name))
-        settings.append('         <setting id="%s-select" type="enum" label="     Automatically Select (Movies only)" values="Most Recent|Highest Quality" default="0" visible="eq(-7,true)"/>' % (name))
+        settings.append('         <setting id="%s-select" type="enum" label="     Automatically Select" values="Most Recent|Highest Quality" default="0" visible="eq(-7,true)"/>' % (name))
         return settings
 
     def search(self, video_type, title, year):
         search_url = urlparse.urljoin(self.base_url, '/?s=%s&go=Search' % (urllib.quote_plus(title)))
         html = self._http_get(search_url, cache_limit=1)
-        results = []
-        filter_days = datetime.timedelta(days=int(xbmcaddon.Addon().getSetting('%s-filter' % (self.get_name()))))
-        today = datetime.date.today()
-        pattern = 'href="([^"]+)[^>]+rel="bookmark">([^<]+).*?class="entry-date">(\d+)/(\d+)/(\d+)'
-        for match in re.finditer(pattern, html, re.DOTALL):
-            url, title, post_month, post_day, post_year = match.groups('')
-
-            if filter_days:
-                post_date = datetime.date(int(post_year), int(post_month), int(post_day))
-                if today - post_date > filter_days:
-                    continue
-
-            match_year = ''
-            title = title.replace('&#8211;', '-')
-            title = title.replace('&#8217;', "'")
-            if video_type == VIDEO_TYPES.MOVIE:
-                match = re.search('(.*?)\s*[\[(]?(\d{4})[)\]]?\s*(.*)', title)
-                if match:
-                    title, match_year, extra_title = match.groups()
-                    title = '%s [%s]' % (title, extra_title)
-
-            if not year or not match_year or year == match_year:
-                result = {'url': url.replace(self.base_url, ''), 'title': title, 'year': match_year}
-                results.append(result)
-        return results
+        pattern = 'href="(?P<url>[^"]+)[^>]+rel="bookmark">(?P<post_title>[^<]+).*?class="entry-date">(?P<date>\d+/\d+/\d+)'
+        date_format = '%m/%d/%Y'
+        return self._blog_proc_results(html, pattern, date_format, video_type, title, year)
 
     def _http_get(self, url, data=None, cache_limit=8):
         return super(RLSSource_Scraper, self)._cached_http_get(url, self.base_url, self.timeout, data=data, cache_limit=cache_limit)

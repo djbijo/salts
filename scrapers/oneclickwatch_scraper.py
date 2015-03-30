@@ -19,8 +19,6 @@ import scraper
 import urllib
 import urlparse
 import re
-import datetime
-import time
 import xbmcaddon
 from salts_lib import log_utils
 from salts_lib.constants import VIDEO_TYPES
@@ -81,7 +79,7 @@ class OneClickWatch_Scraper(scraper.Scraper):
         settings = cls._disable_sub_check(settings)
         name = cls.get_name()
         settings.append('         <setting id="%s-filter" type="slider" range="0,180" option="int" label="     Filter results older than (0=No Filter) (days)" default="30" visible="eq(-6,true)"/>' % (name))
-        settings.append('         <setting id="%s-select" type="enum" label="     Automatically Select (Movies only)" values="Most Recent|Highest Quality" default="0" visible="eq(-7,true)"/>' % (name))
+        settings.append('         <setting id="%s-select" type="enum" label="     Automatically Select" values="Most Recent|Highest Quality" default="0" visible="eq(-7,true)"/>' % (name))
         return settings
 
     def search(self, video_type, title, year):
@@ -89,40 +87,9 @@ class OneClickWatch_Scraper(scraper.Scraper):
         search_url += urllib.quote_plus(title)
         headers = {'Referer': self.base_url}
         html = self._http_get(search_url, headers=headers, cache_limit=.25)
-        results = []
-        filter_days = datetime.timedelta(days=int(xbmcaddon.Addon().getSetting('%s-filter' % (self.get_name()))))
-        today = datetime.date.today()
-        pattern = 'class="title"><a href="([^"]+)[^>]+>([^<]+).*?rel="bookmark">([^<]+)'
-        for match in re.finditer(pattern, html, re.DOTALL):
-            url, title, date_str = match.groups('')
-            if filter_days:
-                try: post_date = datetime.datetime.strptime(date_str, '%B %d, %Y').date()
-                except TypeError: post_date = datetime.datetime(*(time.strptime(date_str, '%B %d, %Y')[0:6])).date()
-                if today - post_date > filter_days:
-                    continue
-
-            match_year = ''
-            if video_type == VIDEO_TYPES.MOVIE:
-                match = re.search('(.*?)\s*[\[(]?(\d{4})[)\]]?\s*(.*)', title)
-                if match:
-                    title, match_year, extra_title = match.groups()
-                    title = '%s [%s]' % (title, extra_title)
-            else:
-                match_year = ''
-                match = re.search('(.*?)\s*S\d+E\d+\s*(.*)', title)
-                if match:
-                    title, extra_title = match.groups()
-                    title = '%s [%s]' % (title, extra_title)
-                else:
-                    match = re.search('(.*?)\s*\d{4}\.\d{2}\.\d{2}\s*(.*)', title)
-                    if match:
-                        title, extra_title = match.groups()
-                        title = '%s [%s]' % (title, extra_title)
-
-            if not year or not match_year or year == match_year:
-                result = {'url': url.replace(self.base_url, ''), 'title': title, 'year': match_year}
-                results.append(result)
-        return results
+        pattern = 'class="title"><a href="(?P<url>[^"]+)[^>]+>(?P<post_title>[^<]+).*?rel="bookmark">(?P<date>[^<]+)'
+        date_format = '%B %d, %Y'
+        return self._blog_proc_results(html, pattern, date_format, video_type, title, year)
 
     def _http_get(self, url, headers=None, cache_limit=8):
         return super(OneClickWatch_Scraper, self)._cached_http_get(url, self.base_url, self.timeout, headers=headers, cache_limit=cache_limit)

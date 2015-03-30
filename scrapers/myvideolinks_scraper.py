@@ -19,13 +19,12 @@ import scraper
 import urllib
 import urlparse
 import re
-import datetime
 import xbmcaddon
 from salts_lib import log_utils
 from salts_lib.constants import VIDEO_TYPES
 from salts_lib.db_utils import DB_Connection
 
-BASE_URL = 'http://download.myvideolinks.eu'
+BASE_URL = 'http://download.myvideolinks.xyz'
 
 class MyVidLinks_Scraper(scraper.Scraper):
     base_url = BASE_URL
@@ -118,34 +117,9 @@ class MyVidLinks_Scraper(scraper.Scraper):
         search_url = urlparse.urljoin(self.base_url, '/?s=')
         search_url += urllib.quote_plus(title)
         html = self._http_get(search_url, cache_limit=1)
-        results = []
-        filter_days = datetime.timedelta(days=int(xbmcaddon.Addon().getSetting('%s-filter' % (self.get_name()))))
-        today = datetime.date.today()
-        pattern = '<h\d+>.*?<a\s+href="([^"]+)"\s+rel="bookmark"\s+title="([^"]+)'
-        for match in re.finditer(pattern, html, re.DOTALL):
-            url, title = match.groups('')
-
-            if filter_days:
-                match = re.search('/(\d{4})/(\d{2})/(\d{2})/', url)
-                if match:
-                    post_year, post_month, post_day = match.groups()
-                    post_date = datetime.date(int(post_year), int(post_month), int(post_day))
-                    if today - post_date > filter_days:
-                        continue
-
-            match_year = ''
-            title = title.replace('&#8211;', '-')
-            title = title.replace('&#8217;', "'")
-            if video_type == VIDEO_TYPES.MOVIE:
-                match = re.search('(.*?)\s*[\[(]?(\d{4})[)\]]?\s*(.*)', title)
-                if match:
-                    title, match_year, extra_title = match.groups()
-                    title = '%s [%s]' % (title, extra_title)
-
-            if not year or not match_year or year == match_year:
-                result = {'url': url.replace(self.base_url, ''), 'title': title, 'year': match_year}
-                results.append(result)
-        return results
+        pattern = '<h\d+>.*?<a\s+href="(?P<url>[^"]*/(?P<date>\d{4}/\d{2}/\d{2})/[^"]*)"\s+rel="bookmark"\s+title="(?P<post_title>[^"]+)'
+        date_format = '%Y/%m/%d'
+        return self._blog_proc_results(html, pattern, date_format, video_type, title, year)
 
     def _http_get(self, url, data=None, cache_limit=8):
         return super(MyVidLinks_Scraper, self)._cached_http_get(url, self.base_url, self.timeout, data=data, cache_limit=cache_limit)
