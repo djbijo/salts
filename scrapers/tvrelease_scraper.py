@@ -19,14 +19,11 @@ import scraper
 import urllib
 import urlparse
 import re
-import datetime
-import time
 import xbmcaddon
 from salts_lib import log_utils
 from salts_lib.constants import VIDEO_TYPES
 from salts_lib.db_utils import DB_Connection
 from salts_lib.constants import QUALITIES
-from salts_lib.constants import Q_ORDER
 
 BASE_URL = 'http://tv-release.net'
 QUALITY_MAP = {'MOVIES-XVID': QUALITIES.MEDIUM, 'TV-XVID': QUALITIES.HIGH, 'TV-MP4': QUALITIES.HIGH,
@@ -69,6 +66,9 @@ class TVReleaseNet_Scraper(scraper.Scraper):
             pattern = "td_cols.*?href='([^']+)"
             for match in re.finditer(pattern, html):
                 url = match.group(1)
+                if re.search('\.rar(\.|$)', url):
+                    continue
+
                 hoster = {'multi-part': False, 'class': self, 'views': None, 'url': url, 'rating': None, 'direct': False}
                 hoster['host'] = urlparse.urlsplit(url).hostname
                 hoster['quality'] = self._get_quality(video, hoster['host'], QUALITY_MAP.get(q_str, None))
@@ -96,41 +96,9 @@ class TVReleaseNet_Scraper(scraper.Scraper):
         else:
             search_url += '&cat=Movies-XviD,Movies-720p,Movies-480p'
         html = self._http_get(search_url, cache_limit=.25)
-        results = []
-        filter_days = datetime.timedelta(days=int(xbmcaddon.Addon().getSetting('%s-filter' % (self.get_name()))))
-        today = datetime.date.today()
-        pattern = "posts_table.*?<a[^>]+>([^<]+).*?href='([^']+)'>([^<]+).*?([^>]+)</td></tr>"
-        for match in re.finditer(pattern, html, re.DOTALL):
-            quality, url, title, date_str = match.groups('')
-            quality = quality.upper()
-            if filter_days:
-                try: post_date = datetime.datetime.strptime(date_str, '%Y-%m-%d %H:%M:%S').date()
-                except TypeError: post_date = datetime.datetime(*(time.strptime(date_str, '%Y-%m-%d %H:%M:%S')[0:6])).date()
-                if today - post_date > filter_days:
-                    continue
-
-            match_year = ''
-            if video_type == VIDEO_TYPES.MOVIE:
-                match = re.search('(.*?)\s*(\d{4})', title)
-                if match:
-                    title, match_year = match.groups()
-                    title = '%s [%s]' % (title, quality)
-            else:
-                match_year = ''
-                match = re.search('(.*?)\s*S\d+E\d+', title)
-                if match:
-                    title = match.group(1)
-                else:
-                    match = re.search('(.*?)\s*\d{4}\s\d{2}\s\d{2}', title)
-                    if match:
-                        title = match.group(1)
-                    
-                title = '%s [%s]' % (title, quality)
-
-            if not year or not match_year or year == match_year:
-                result = {'url': url.replace(self.base_url, ''), 'title': title, 'year': match_year}
-                results.append(result)
-        return results
+        pattern = "posts_table.*?<a[^>]+>(?P<quality>[^<]+).*?href='(?P<url>[^']+)'>(?P<post_title>[^<]+).*?(?P<date>[^>]+)</td></tr>"
+        date_format = '%Y-%m-%d %H:%M:%S'
+        return self._blog_proc_results(html, pattern, date_format, video_type, title, year)
 
     def _http_get(self, url, cache_limit=8):
         return super(TVReleaseNet_Scraper, self)._cached_http_get(url, self.base_url, self.timeout, cache_limit=cache_limit)

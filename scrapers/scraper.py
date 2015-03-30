@@ -351,6 +351,8 @@ class Scraper(object):
         for match in re.finditer(post_pattern, html, re.DOTALL):
             post_data = match.groupdict()
             post_title = post_data['post_title']
+            if 'quality' in post_data:
+                post_title += '- [%s]' % (post_data['quality'])
 
             if filter_days:
                 try: post_date = datetime.datetime.strptime(post_data['date'], date_format).date()
