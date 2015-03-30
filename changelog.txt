@@ -1,3 +1,10 @@
+[B]Version 1.0.0~beta4[/B]
+- Fix moviestorm search
+- add gvcenter scraper
+- improve directdownload.tv scraper
+- Migrate to new trakt calendar API's
+- Improve and simplify all blog scrapers
+
 [B]Version 1.0.0~beta3[/B]
 - Fix hdtvshows scraper
 - Improve local scraper
