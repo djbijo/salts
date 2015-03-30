@@ -82,7 +82,7 @@ class MovieStorm_Scraper(scraper.Scraper):
 
     def search(self, video_type, title, year):
         url = urlparse.urljoin(self.base_url, '/search?q=%s&go=Search' % urllib.quote_plus(title))
-        data = {'q': urllib.quote_plus(title), 'go': 'Search'}
+        data = {'q': title, 'go': 'Search'}
         html = self._http_get(url, data=data, cache_limit=8)
 
         results = []
@@ -90,6 +90,7 @@ class MovieStorm_Scraper(scraper.Scraper):
         norm_title = self._normalize_title(title)
         for match in re.finditer(pattern, html, re.DOTALL):
             url, match_title = match.groups()
+            print url, match_title
             if norm_title in self._normalize_title(match_title):
                 result = {'url': url.replace(self.base_url, ''), 'title': match_title, 'year': ''}
                 results.append(result)
