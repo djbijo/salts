@@ -64,13 +64,15 @@ class Solar_Scraper(scraper.Scraper):
             pattern = '<tr\s+id="link_(.*?)</tr>'
             for match in re.finditer(pattern, html, re.DOTALL):
                 link = match.group(1)
-                link_pattern = 'href="([^"]+)">\s*([^<]+).*?class="text">\s*([^<%]+).*?class="qualityCell">\s*([^<]+)'
+                link_pattern = 'href="([^"]+)">\s*([^<]+).*?class="text">\s*([^<%]+).*?class="qualityCell[^>]*>\s*([^<]+)'
                 link_match = re.search(link_pattern, link, re.DOTALL)
                 if link_match:
                     url, host, rating, quality = link_match.groups()
+                    host = host.strip()
+                    quality = quality.upper().strip()
                     if rating == 'n/a': rating = None
                     url = url.replace('/show/', '/play/')
-                    quality = QUALITY_MAP.get(quality.strip(), QUALITIES.MEDIUM)
+                    quality = QUALITY_MAP.get(quality, QUALITIES.MEDIUM)
 
                     hoster = {'multi-part': False, 'url': url, 'host': host, 'class': self, 'quality': self._get_quality(video, host, quality), 'views': None, 'rating': rating, 'direct': False}
                     hosters.append(hoster)
