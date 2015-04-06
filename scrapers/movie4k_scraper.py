@@ -60,7 +60,7 @@ class Movie4K_Scraper(scraper.Scraper):
             url = urlparse.urljoin(self.base_url, source_url)
             html = self._http_get(url, cache_limit=.5)
 
-            pattern = r'links\[\d+\].*?href=\\"([^\\]+).*?alt=\\"([^\s]+)(.*)'
+            pattern = r'id="tablemoviesindex2".*?href="([^"]+).*?&nbsp;([^<]+)(.*)'
             for match in re.finditer(pattern, html):
                 url, host, extra = match.groups()
                 if not url.startswith('/'): url = '/' + url
