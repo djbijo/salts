@@ -81,7 +81,7 @@ class TwoMovies_Scraper(scraper.Scraper):
         return super(TwoMovies_Scraper, self)._default_get_url(video)
 
     def search(self, video_type, title, year):
-        search_url = urlparse.urljoin(self.base_url, '/search/?criteria=title&search_query=')
+        search_url = urlparse.urljoin(self.base_url, '/search/?criteria=title&order=year&sort=desc&search_query=')
         search_url += urllib.quote_plus(title.lower())
         html = self._http_get(search_url, cache_limit=0)
         results = []
