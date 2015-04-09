@@ -364,6 +364,7 @@ class Scraper(object):
             match_title = ''
             post_title = post_title.replace('&#8211;', '-')
             post_title = post_title.replace('&#8217;', "'")
+            full_title = post_title
             if video_type == VIDEO_TYPES.MOVIE:
                 match = re.search('(.*?)\s*[\[(]?(\d{4})[)\]]?\s*(.*)', post_title)
                 if match:
@@ -375,7 +376,7 @@ class Scraper(object):
                     match_title, extra_title = match.groups()
                     full_title = '%s [%s]' % (match_title, extra_title)
                 else:
-                    match = re.search('(.*?)\s*\d{4}\.\d{2}\.\d{2}\s*(.*)', post_title)
+                    match = re.search('(.*?)\s*\d{4}[ .]?\d{2}[ .]?\d{2}\s*(.*)', post_title)
                     if match:
                         match_title, extra_title = match.groups()
                         full_title = '%s [%s]' % (match_title, extra_title)
